@@ -28,7 +28,7 @@ For thirtyDayPlaybook: Based on findings (not word-for-word repeats), create 3 a
 For score: Give an honest 0-100 market positioning score. Most businesses land 45-75. Reserve 80+ for genuinely exceptional positioning. The scoreLabel is one punchy line that captures the gap — specific, not generic. The scoreContext names the single biggest thing holding the score back.`;
 
 async function generatePlaybook(url) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch("/api/anthropic", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
