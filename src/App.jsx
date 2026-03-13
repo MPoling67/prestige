@@ -320,7 +320,7 @@ export default function App() {
                 gap: "16px"
               }}>
                 <p style={{ fontSize: "15px", color: "#8a8070", margin: 0, maxWidth: "340px", lineHeight: "1.6" }}>
-                  Want to close that gap? Let's talk about your unfair advantage.
+                  Want to close that gap?  Let&#39;s talk about your unfair advantage.
                 </p>
                 
                   href="https://monicapoling.com"
