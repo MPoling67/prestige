@@ -138,8 +138,8 @@ export default function App() {
           color: "#f0ece4",
           letterSpacing: "-0.02em"
         }}>
-          Your Unfair<br />
-          <span style={{ color: "#b8a98a", fontStyle: "italic" }}>Advantage</span> Starts Here.
+          <span style={{ color: "#b8a98a", fontStyle: "italic" }}>Unfair Advantage</span><br />
+          Starts Here.
         </h1>
         <p style={{ fontSize: "17px", lineHeight: "1.7", color: "#8a8070", maxWidth: "520px", margin: "0 0 48px" }}>
           Drop in a website URL. Get a personalized strategic playbook — written in plain language, built around what makes you remarkable.
@@ -215,7 +215,6 @@ export default function App() {
           padding: "0 40px 80px",
           animation: "fadeIn 0.6s ease"
         }}>
-          {/* Divider */}
           <div style={{ borderTop: "1px solid #2a2a2a", marginBottom: "56px" }} />
 
           {/* Business name + date */}
@@ -281,7 +280,7 @@ export default function App() {
               animation: "fadeIn 0.8s ease 0.3s both"
             }}>
               <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a5a5a", marginBottom: "20px" }}>⚡ Market Positioning Score</p>
-              
+
               <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "16px" }}>
                 <span style={{
                   fontSize: "72px",
