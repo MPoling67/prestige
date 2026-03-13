@@ -323,7 +323,7 @@ export default function App() {
                   Want to close that gap?  Let&#39;s talk about your unfair advantage.
                 </p>
                 
-                  href="https://monicapoling.com"
+                  <a href="https://monicapoling.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
