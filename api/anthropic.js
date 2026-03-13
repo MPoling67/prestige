@@ -2,16 +2,49 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   try {
+    // Extract the URL from the message content
+    const userMessage = req.body.messages?.[0]?.content || '';
+    const urlMatch = userMessage.match(/https?:\/\/[^\s.]+\.[^\s]+/);
+    let pageContent = '';
+
+    if (urlMatch) {
+      try {
+        const pageRes = await fetch(urlMatch[0], {
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1)' }
+        });
+        const html = await pageRes.text();
+        // Strip HTML tags and collapse whitespace
+        pageContent = html
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 8000);
+      } catch (e) {
+        pageContent = 'Could not fetch page content.';
+      }
+    }
+
+    // Inject page content into the message
+    const enrichedBody = {
+      ...req.body,
+      messages: [
+        {
+          role: 'user',
+          content: `Here is the actual current content scraped from the website ${urlMatch?.[0]}:\n\n${pageContent}\n\nUsing ONLY the above content, generate the Market Intel Playbook JSON.`
+        }
+      ]
+    };
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -20,7 +53,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
         'anthropic-beta': 'web-search-2025-03-05'
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(enrichedBody)
     });
 
     const data = await response.json();
