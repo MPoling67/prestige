@@ -17,13 +17,13 @@ Return ONLY valid JSON, no markdown, no preamble. Schema:
   "sleepingGiant": "50 words max. One high-level underserved pillar, service, or content story that should be more elevated — especially on the home page. Explain revenue, status, or opportunity potential.",
   "voiceOfTheIndustry": "50 words max. Their perceived reputation, sentiment, uniqueness. Note whether an about statement is present and findable, if testimonials exist, and whether there is a clear leader voice.",
   "whatOtherLeadersDo": "50 words max. A real competitive organization example and how their leadership elevates the org.",
-  "thirtyDayPlaybook": ["bullet 1 (15 words max)", "bullet 2 (15 words max)", "bullet 3 (15 words max)"],
+  "thirtyDayPlaybook": ["bullet 1 (15 words max)", "bullet 2 (15 words max)", "bullet 3 (15 words max)", "bullet 4 (15 words max)"],
   "score": 72,
   "scoreLabel": "Strong foundation. Your story isn't keeping pace with your results.",
   "scoreContext": "One sentence (20 words max) that names ONE specific thing holding the score back — honest, direct, not discouraging."
 }
 
-For thirtyDayPlaybook: Based on findings (not word-for-word repeats), create 3 action bullets. If leadership needs elevating, make that bullet 1. Include customer growth mechanisms where relevant (lead magnet, newsletter, CTAs, content). Keep bullets directional, not prescriptive — like "Elevate your leadership presence" not step-by-step instructions.
+For thirtyDayPlaybook: Based on findings, create exactly 4 action bullets always in this sequence: (1) Most urgent positioning move — specific to what the analysis found, never a generic opener; (2) Reputation/visibility — PR, thought leadership, social proof, leader voice; (3) Fix the pipeline — newsletter, lead magnet, contact form, or whatever is missing; (4) Systemize it with AI — turn the insight into a repeatable process. Keep bullets directional, not prescriptive.
 
 For score: Give an honest 0-100 market positioning score. Most businesses land 45-75. Reserve 80+ for genuinely exceptional positioning. The scoreLabel is one punchy line that captures the gap — specific, not generic. The scoreContext names the single biggest thing holding the score back.`;
 
@@ -60,8 +60,8 @@ const sectionEmoji = {
 };
 
 const sectionTitles = {
-  yourWow: "Your Wow",
-  sleepingGiant: "Your Sleeping Giant",
+  yourWow: "Your Unfair Advantage",
+  sleepingGiant: "Your Sleeping Giant (Your Institutional Knowledge)",
   voiceOfTheIndustry: "Voice of the Industry",
   whatOtherLeadersDo: "What Other Leaders Do",
   thirtyDayPlaybook: "30-Day Playbook: Claim Your Space"
@@ -282,7 +282,6 @@ export default function App() {
             }}>
               <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a5a5a", marginBottom: "20px" }}>⚡ Market Positioning Score</p>
               
-              {/* Score number */}
               <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "16px" }}>
                 <span style={{
                   fontSize: "72px",
@@ -294,7 +293,6 @@ export default function App() {
                 <span style={{ fontSize: "24px", color: "#3a3a3a", paddingBottom: "8px" }}>/100</span>
               </div>
 
-              {/* Score bar */}
               <div style={{ background: "#1e1e1e", borderRadius: "2px", height: "4px", marginBottom: "20px", overflow: "hidden" }}>
                 <div style={{
                   height: "100%",
@@ -313,7 +311,6 @@ export default function App() {
                 {playbook.scoreContext}
               </p>
 
-              {/* CTA */}
               <div style={{
                 borderTop: "1px solid #2a2a2a",
                 paddingTop: "28px",
@@ -326,7 +323,7 @@ export default function App() {
                 <p style={{ fontSize: "15px", color: "#8a8070", margin: 0, maxWidth: "340px", lineHeight: "1.6" }}>
                   Want to close that gap? Let's talk about your unfair advantage.
                 </p>
-                <a
+                
                   href="https://monicapoling.com"
                   target="_blank"
                   rel="noopener noreferrer"
