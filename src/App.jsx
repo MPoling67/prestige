@@ -1,91 +1,180 @@
 import { useState } from "react";
 
-const MONICA_SYSTEM_PROMPT = `You are a strategic business analyst creating a personalized Market Intel Playbook for Monica Poling (monicapoling.com), a business strategist and AI trainer. 
+const PRESTIGE_SYSTEM_PROMPT = `You are a strategic business analyst creating a personalized Prestige Score Report for a small, mid-size, or large business, nonprofit, government entity, or educational institution.
 
-Your tone is warm, direct, and expert — like a trusted advisor who has done their homework. Sophisticated in analysis but avoids jargon like "pipeline," "scale," or "leverage." You are built to impress with ideas, not corporate-speak.
+Your tone is warm, direct, and expert — like a trusted advisor who has done their homework. This report could land in front of anyone from a solo founder to a senior executive. It is sophisticated in its analysis but avoids jargon like "pipeline," "scale," "leverage," or "synergy." You are built to impress with ideas, not consultant-speak.
 
-The playbook must feel written specifically for the client, not AI-generated.
+The report should feel like it was written specifically for this organization — not AI generated.
 
-You will research the provided URL and return a JSON object with these exact keys. STRICT word counts apply.
+Use the web_search tool to fetch and read the content at the provided URL before generating any output. If the first fetch fails or returns no useful content, try these variations in order:
+1. Add or remove a trailing slash
+2. Add or remove "www."
+3. Try the root domain if a subpage was given
+Do NOT rely on LLM memory. Only use what you find by actually visiting the URL.
 
-Return ONLY valid JSON, no markdown, no preamble. Schema:
+Return ONLY valid JSON. No markdown, no preamble, no backticks. Adhere strictly to word counts per section.
+
+SCORING RUBRIC (internal only, do not output as separate field):
+18-20: Exceptional
+14-17: Strong with gaps
+10-13: Present but underdeveloped
+6-9: Weak signal
+0-5: Missing or unclear
+
+JSON Schema:
 {
   "businessName": "string",
   "dateGenerated": "Month YYYY",
-  "overview": "Two sentences max, 30 words max. Include the business name.",
-  "yourWow": "50 words max. The singular standout thing that makes them remarkable in their industry. Surface it even if not explicit on site.",
-  "sleepingGiant": "50 words max. One high-level underserved pillar, service, or content story that should be more elevated — especially on the home page. Explain revenue, status, or opportunity potential.",
-  "voiceOfTheIndustry": "50 words max. Their perceived reputation, sentiment, uniqueness. Note whether an about statement is present and findable, if testimonials exist, and whether there is a clear leader voice.",
-  "whatOtherLeadersDo": "50 words max. A real competitive organization example and how their leadership elevates the org.",
-  "thirtyDayPlaybook": ["bullet 1 (15 words max)", "bullet 2 (15 words max)", "bullet 3 (15 words max)", "bullet 4 (15 words max)"],
-  "score": 72,
-  "scoreLabel": "Strong foundation. Your story isn't keeping pace with your results.",
-  "scoreContext": "One sentence (20 words max) that names ONE specific thing holding the score back — honest, direct, not discouraging."
+  "overview": "Two sentences max. Include full business name. 30 words max.",
+  "overallScore": 72,
+  "overallDescriptor": "string — one of: Category Leader | Strong Foundation, Underutilized Story | Solid Presence, Clear Gaps | Underdeveloped Positioning | Significant Opportunity",
+  "overallSummary": "Two sentences. What's working, what's the primary gap. Specific to this organization. 40 words max.",
+  "prestige": {
+    "score": 14,
+    "content": "40-50 words. Does this organization have a clear category they lead or are claiming? Is their positioning distinct or generic? For nonprofits, government, or education, assess whether their mission is stated with conviction and clarity."
+  },
+  "origin": {
+    "score": 12,
+    "content": "40-50 words. For for-profit: is the founder or leader's story visible and compelling? For nonprofit, government, or education: is the founding mission and institutional values present and active — or buried under program listings and compliance language?"
+  },
+  "wow": {
+    "score": 16,
+    "content": "40-50 words. Identify the singular standout factor — the thing that makes this organization genuinely different. Also identify the Sleeping Giant: a high-value but underserved pillar, service, or story that should be more elevated. Explain briefly why it's being left on the table."
+  },
+  "expertise": {
+    "score": 10,
+    "content": "40-50 words. Look for self-reported proof: credentials, methodologies, case studies, track record, proprietary frameworks, certifications, years of experience. Is the depth of knowledge visible or assumed? Is there a clear demonstration of how they work?"
+  },
+  "reputation": {
+    "score": 8,
+    "content": "40-50 words. On-page only. Look for testimonials, client logos, press mentions, embedded reviews, awards, or any third-party validation the organization has chosen to feature. Assess quality, placement, and whether social proof is doing any conversion work."
+  },
+  "brandPersonality": "40-50 words. Based on tone, language, word choice, and content elements — what personality does this brand project? How is a visitor likely to experience it emotionally? What questions might a visitor have that aren't being answered? Note any friction between the personality projected and what the audience likely expects.",
+  "urlsAttempted": ["https://example.com", "https://www.example.com"],
+  "fetchSuccess": true,
+  "fetchNote": "Optional string — only include if there were issues fetching. Describe what happened."
 }
 
-For thirtyDayPlaybook: Based on findings, create exactly 4 action bullets always in this sequence: (1) Most urgent positioning move — specific to what the analysis found, never a generic opener; (2) Reputation/visibility — PR, thought leadership, social proof, leader voice; (3) Fix the pipeline — newsletter, lead magnet, contact form, or whatever is missing; (4) Systemize it with AI — turn the insight into a repeatable process. Keep bullets directional, not prescriptive.
+For overallScore: sum the five P-O-W-E-R scores (each out of 20, total out of 100). Use the descriptor that matches:
+90-100: Category Leader
+75-89: Strong Foundation, Underutilized Story
+60-74: Solid Presence, Clear Gaps
+45-59: Underdeveloped Positioning
+Below 45: Significant Opportunity`;
 
-For score: Give an honest 0-100 market positioning score. Most businesses land 45-75. Reserve 80+ for genuinely exceptional positioning. The scoreLabel is one punchy line that captures the gap — specific, not generic. The scoreContext names the single biggest thing holding the score back.`;
+function normalizeUrl(input) {
+  let url = input.trim();
+  if (!url) return url;
+  // Add protocol if missing
+  if (!/^https?:\/\//i.test(url)) {
+    url = "https://" + url;
+  }
+  // Remove trailing slash for consistency (we'll try both in the prompt)
+  url = url.replace(/\/+$/, "");
+  return url;
+}
 
-async function generatePlaybook(url) {
+async function generatePlaybook(rawUrl) {
+  const url = normalizeUrl(rawUrl);
+
   const response = await fetch("/api/anthropic", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
+      max_tokens: 2000,
       tools: [{ type: "web_search_20250305", name: "web_search" }],
-      system: MONICA_SYSTEM_PROMPT,
+      system: PRESTIGE_SYSTEM_PROMPT,
       messages: [
         {
           role: "user",
-          content: `You must use the web_search tool to fetch and read the content at this URL before generating any output: ${url}. Do not rely on any prior knowledge about this business. Only use what you find by actually visiting the URL. Then generate the Market Intel Playbook JSON.`
+          content: `Generate a Prestige Score Report for this organization. Start by fetching: ${url}
+
+If that fetch fails or returns no meaningful content, try these in order:
+- ${url}/
+- ${url.replace(/^https:\/\//, "https://www.")}
+- ${url.replace(/^https:\/\/www\./, "https://")}
+
+Record all URLs you attempted in the urlsAttempted field. Set fetchSuccess to false and explain in fetchNote if you were unable to retrieve useful content from any variation.
+
+Then generate the full Prestige Score Report JSON.`
         }
       ]
     })
   });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`API error ${response.status}: ${errorText}`);
+  }
+
   const data = await response.json();
   const textBlock = data.content?.find(b => b.type === "text");
-  if (!textBlock) throw new Error("No text response received.");
+  if (!textBlock) {
+    throw new Error(`No text block in response. Content types received: ${data.content?.map(b => b.type).join(", ") || "none"}`);
+  }
+
   const clean = textBlock.text.replace(/```json|```/g, "").trim();
-  return JSON.parse(clean);
+
+  try {
+    return JSON.parse(clean);
+  } catch (parseErr) {
+    throw new Error(`JSON parse failed: ${parseErr.message}\n\nRaw response (first 500 chars):\n${clean.substring(0, 500)}`);
+  }
 }
 
-const sectionEmoji = {
-  yourWow: "✨",
-  sleepingGiant: "🌵",
-  voiceOfTheIndustry: "🎙️",
-  whatOtherLeadersDo: "🔭",
-  thirtyDayPlaybook: "🗓️"
-};
+const POWER_SECTIONS = [
+  { key: "prestige", letter: "P", label: "Prestige", subtitle: "Do You Own Your Category?" },
+  { key: "origin",   letter: "O", label: "Origin",   subtitle: "Is Your Story Showing Up?" },
+  { key: "wow",      letter: "W", label: "Wow",       subtitle: "What Makes You Unforgettable?" },
+  { key: "expertise",letter: "E", label: "Expertise", subtitle: "Are You Proving What You Know?" },
+  { key: "reputation",letter:"R", label: "Reputation",subtitle: "Are Others Vouching For You?" },
+];
 
-const sectionTitles = {
-  yourWow: "Your Unfair Advantage",
-  sleepingGiant: "Your Sleeping Giant (Your Institutional Knowledge)",
-  voiceOfTheIndustry: "Voice of the Industry",
-  whatOtherLeadersDo: "What Other Leaders Do",
-  thirtyDayPlaybook: "30-Day Playbook: Claim Your Space"
-};
+function ScoreBar({ score, max = 20 }) {
+  const pct = Math.round((score / max) * 100);
+  const color = pct >= 75 ? "#06472a" : pct >= 55 ? "#861442" : "#8a5a3a";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
+      <div style={{ flex: 1, background: "#1e1510", borderRadius: "2px", height: "4px", overflow: "hidden" }}>
+        <div style={{
+          height: "100%",
+          width: `${pct}%`,
+          background: color,
+          borderRadius: "2px",
+          transition: "width 1.2s ease"
+        }} />
+      </div>
+      <span style={{ fontSize: "13px", color: "#f2e4ca", fontWeight: "600", minWidth: "36px", textAlign: "right" }}>
+        {score}/{max}
+      </span>
+    </div>
+  );
+}
 
 export default function App() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [playbook, setPlaybook] = useState(null);
   const [error, setError] = useState(null);
+  const [debugInfo, setDebugInfo] = useState(null);
+  const [debugOpen, setDebugOpen] = useState(false);
   const [progress, setProgress] = useState("");
 
   const handleGenerate = async () => {
     if (!url.trim()) return;
     setLoading(true);
     setError(null);
+    setDebugInfo(null);
+    setDebugOpen(false);
     setPlaybook(null);
 
     const steps = [
       "Pulling up the site...",
       "Reading between the lines...",
-      "Finding the Sleeping Giant...",
-      "Sizing up the competition...",
-      "Writing your playbook..."
+      "Evaluating your P-O-W-E-R...",
+      "Sizing up the landscape...",
+      "Writing your Prestige Score Report..."
     ];
     let i = 0;
     setProgress(steps[0]);
@@ -97,8 +186,17 @@ export default function App() {
     try {
       const result = await generatePlaybook(url);
       setPlaybook(result);
+      // Surface fetch issues even on success
+      if (!result.fetchSuccess || result.fetchNote) {
+        setDebugInfo(
+          `Fetch status: ${result.fetchSuccess ? "Success" : "Failed"}\n` +
+          `URLs attempted: ${result.urlsAttempted?.join(", ") || "unknown"}\n` +
+          (result.fetchNote ? `Note: ${result.fetchNote}` : "")
+        );
+      }
     } catch (e) {
-      setError("Something went wrong generating the playbook. Check the URL and try again.");
+      setError("Something went wrong generating your Prestige Score Report. Check the URL and try again.");
+      setDebugInfo(e.message);
     } finally {
       clearInterval(interval);
       setLoading(false);
@@ -106,43 +204,70 @@ export default function App() {
     }
   };
 
+  const overallColor = playbook
+    ? playbook.overallScore >= 75 ? "#06472a"
+    : playbook.overallScore >= 55 ? "#861442"
+    : "#8a5a3a"
+    : "#861442";
+
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#0d0d0d",
-      fontFamily: "'Georgia', 'Times New Roman', serif",
-      color: "#f0ece4",
+      background: "#2b211b",
+      fontFamily: "'Poppins', 'Georgia', sans-serif",
+      color: "#f2e4ca",
       padding: "0"
     }}>
+      {/* Google Fonts */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+
+        @keyframes scoreBar {
+          from { width: 0%; }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.4); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        input::placeholder { color: #5a4a3a; }
+        * { box-sizing: border-box; }
+        button:hover { opacity: 0.88; }
+      `}</style>
+
       {/* Header */}
       <div style={{
-        borderBottom: "1px solid #2a2a2a",
+        borderBottom: "1px solid #3d2e24",
         padding: "32px 40px 28px",
         display: "flex",
         alignItems: "baseline",
         gap: "12px"
       }}>
-        <span style={{ fontSize: "11px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#b8a98a", fontFamily: "'Georgia', serif" }}>Monica Poling</span>
-        <span style={{ color: "#3a3a3a", fontSize: "10px" }}>✦</span>
-        <span style={{ fontSize: "11px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#5a5a5a", fontFamily: "'Georgia', serif" }}>Unfair Advantage Playbook</span>
+        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#f9ebea", fontWeight: "500" }}>Monica Poling</span>
+        <span style={{ color: "#5a3a2a", fontSize: "10px" }}>✦</span>
+        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#6a5040", fontWeight: "400" }}>Prestige Score Report</span>
       </div>
 
       {/* Hero */}
-      <div style={{ padding: "72px 40px 56px", maxWidth: "760px", margin: "0 auto" }}>
-        <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#b8a98a", marginBottom: "20px", fontFamily: "'Georgia', serif" }}>Market Intelligence</p>
+      <div style={{ padding: "72px 40px 56px", maxWidth: "780px", margin: "0 auto" }}>
+        <p style={{ fontSize: "12px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#861442", marginBottom: "20px", fontWeight: "500" }}>Market Intelligence</p>
         <h1 style={{
           fontSize: "clamp(36px, 5vw, 58px)",
-          fontWeight: "400",
+          fontWeight: "300",
           lineHeight: "1.1",
           margin: "0 0 24px",
-          color: "#f0ece4",
-          letterSpacing: "-0.02em"
+          color: "#f2e4ca",
+          letterSpacing: "-0.02em",
+          fontFamily: "'Georgia', serif"
         }}>
-          <span style={{ color: "#b8a98a", fontStyle: "italic" }}>Unfair Advantage</span><br />
+          <span style={{ color: "#861442", fontStyle: "italic" }}>Prestige Score</span><br />
           Starts Here.
         </h1>
-        <p style={{ fontSize: "17px", lineHeight: "1.7", color: "#8a8070", maxWidth: "520px", margin: "0 0 48px" }}>
-          Drop in a website URL. Get a personalized strategic playbook — written in plain language, built around what makes you remarkable.
+        <p style={{ fontSize: "18px", lineHeight: "1.75", color: "#9a8070", maxWidth: "520px", margin: "0 0 48px", fontWeight: "300" }}>
+          Drop in a website URL. Get a personalized Prestige Score Report — written in plain language, built around what makes you remarkable.
         </p>
 
         {/* Input */}
@@ -156,30 +281,31 @@ export default function App() {
             style={{
               flex: "1",
               minWidth: "260px",
-              padding: "16px 20px",
-              background: "#1a1a1a",
-              border: "1px solid #2e2e2e",
+              padding: "17px 20px",
+              background: "#1e1510",
+              border: "1px solid #3d2e24",
               borderRadius: "4px",
-              color: "#f0ece4",
-              fontSize: "15px",
-              fontFamily: "'Georgia', serif",
+              color: "#f2e4ca",
+              fontSize: "16px",
+              fontFamily: "'Poppins', sans-serif",
               outline: "none",
-              transition: "border-color 0.2s"
+              transition: "border-color 0.2s",
+              fontWeight: "300"
             }}
-            onFocus={e => e.target.style.borderColor = "#b8a98a"}
-            onBlur={e => e.target.style.borderColor = "#2e2e2e"}
+            onFocus={e => e.target.style.borderColor = "#861442"}
+            onBlur={e => e.target.style.borderColor = "#3d2e24"}
           />
           <button
             onClick={handleGenerate}
             disabled={loading || !url.trim()}
             style={{
-              padding: "16px 32px",
-              background: loading ? "#2a2a2a" : "#b8a98a",
-              color: loading ? "#5a5a5a" : "#0d0d0d",
+              padding: "17px 32px",
+              background: loading ? "#3d2e24" : "#861442",
+              color: loading ? "#6a5040" : "#f9ebea",
               border: "none",
               borderRadius: "4px",
               fontSize: "13px",
-              fontFamily: "'Georgia', serif",
+              fontFamily: "'Poppins', sans-serif",
               letterSpacing: "0.1em",
               textTransform: "uppercase",
               cursor: loading ? "not-allowed" : "pointer",
@@ -187,205 +313,266 @@ export default function App() {
               fontWeight: "600"
             }}
           >
-            {loading ? "Analyzing..." : "Generate Playbook →"}
+            {loading ? "Analyzing..." : "Generate Report →"}
           </button>
         </div>
 
-        {/* Loading state */}
+        {/* Loading */}
         {loading && (
           <div style={{ marginTop: "32px", display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{
-              width: "6px", height: "6px", borderRadius: "50%", background: "#b8a98a",
+              width: "6px", height: "6px", borderRadius: "50%", background: "#861442",
               animation: "pulse 1.2s ease-in-out infinite"
             }} />
-            <p style={{ color: "#8a8070", fontSize: "14px", fontStyle: "italic", margin: 0 }}>{progress}</p>
+            <p style={{ color: "#9a8070", fontSize: "15px", fontStyle: "italic", margin: 0, fontWeight: "300" }}>{progress}</p>
           </div>
         )}
 
+        {/* Error */}
         {error && (
-          <p style={{ color: "#c0705a", fontSize: "14px", marginTop: "20px" }}>{error}</p>
+          <div style={{ marginTop: "20px" }}>
+            <p style={{ color: "#c0705a", fontSize: "15px", margin: "0 0 8px" }}>{error}</p>
+            {debugInfo && (
+              <div>
+                <button
+                  onClick={() => setDebugOpen(o => !o)}
+                  style={{
+                    background: "none",
+                    border: "1px solid #3d2e24",
+                    borderRadius: "3px",
+                    color: "#6a5040",
+                    fontSize: "12px",
+                    fontFamily: "'Poppins', sans-serif",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    padding: "6px 12px"
+                  }}
+                >
+                  {debugOpen ? "Hide" : "Show"} Debug Info
+                </button>
+                {debugOpen && (
+                  <pre style={{
+                    marginTop: "10px",
+                    padding: "16px",
+                    background: "#1e1510",
+                    border: "1px solid #3d2e24",
+                    borderRadius: "4px",
+                    color: "#9a8070",
+                    fontSize: "12px",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    lineHeight: "1.6"
+                  }}>{debugInfo}</pre>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
-      {/* Playbook Output */}
+      {/* Report Output */}
       {playbook && (
         <div style={{
-          maxWidth: "760px",
+          maxWidth: "780px",
           margin: "0 auto",
           padding: "0 40px 80px",
           animation: "fadeIn 0.6s ease"
         }}>
-          <div style={{ borderTop: "1px solid #2a2a2a", marginBottom: "56px" }} />
+          <div style={{ borderTop: "1px solid #3d2e24", marginBottom: "56px" }} />
 
           {/* Business name + date */}
           <div style={{ marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: "400", color: "#f0ece4", margin: "0 0 8px", letterSpacing: "-0.01em" }}>
+            <h2 style={{ fontSize: "30px", fontWeight: "400", color: "#f2e4ca", margin: "0 0 8px", letterSpacing: "-0.01em", fontFamily: "'Georgia', serif" }}>
               {playbook.businessName}
             </h2>
-            <p style={{ fontSize: "12px", color: "#4a9eff", letterSpacing: "0.1em", margin: 0, textTransform: "uppercase" }}>
+            <p style={{ fontSize: "13px", color: "#861442", letterSpacing: "0.1em", margin: 0, textTransform: "uppercase", fontWeight: "500" }}>
               ➜ {playbook.dateGenerated}
             </p>
           </div>
 
           {/* Overview */}
           <div style={{ marginBottom: "48px" }}>
-            <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a5a5a", marginBottom: "12px" }}>Overview</p>
-            <p style={{ fontSize: "18px", lineHeight: "1.75", color: "#c8c0b0", margin: 0, fontStyle: "italic" }}>
+            <p style={{ fontSize: "12px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a4a3a", marginBottom: "12px", fontWeight: "500" }}>Overview</p>
+            <p style={{ fontSize: "19px", lineHeight: "1.75", color: "#c8b8a0", margin: 0, fontStyle: "italic", fontFamily: "'Georgia', serif", fontWeight: "300" }}>
               {playbook.overview}
             </p>
           </div>
 
-          {/* Sections */}
-          {["yourWow", "sleepingGiant", "voiceOfTheIndustry", "whatOtherLeadersDo"].map((key) => (
-            <div key={key} style={{
-              marginBottom: "44px",
-              paddingBottom: "44px",
-              borderBottom: "1px solid #1e1e1e"
-            }}>
-              <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a5a5a", marginBottom: "10px" }}>
-                {sectionEmoji[key]} {sectionTitles[key]}
-              </p>
-              <p style={{ fontSize: "16px", lineHeight: "1.8", color: "#d8d0c0", margin: 0 }}>
-                {playbook[key]}
-              </p>
-            </div>
-          ))}
-
-          {/* 30-Day Playbook */}
+          {/* Overall Score */}
           <div style={{
-            background: "#141414",
-            border: "1px solid #2a2a2a",
+            background: "#1e1510",
+            border: "1px solid #3d2e24",
             borderRadius: "6px",
-            padding: "36px 40px"
+            padding: "36px 40px",
+            marginBottom: "48px"
           }}>
-            <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#b8a98a", marginBottom: "24px" }}>
-              {sectionEmoji.thirtyDayPlaybook} {sectionTitles.thirtyDayPlaybook}
+            <p style={{ fontSize: "12px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a4a3a", marginBottom: "20px", fontWeight: "500" }}>⚡ Overall Prestige Score</p>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "16px" }}>
+              <span style={{ fontSize: "76px", fontWeight: "300", lineHeight: "1", color: overallColor, letterSpacing: "-0.04em", fontFamily: "'Georgia', serif" }}>
+                {playbook.overallScore}
+              </span>
+              <span style={{ fontSize: "26px", color: "#3d2e24", paddingBottom: "8px" }}>/100</span>
+            </div>
+            <div style={{ background: "#2b211b", borderRadius: "2px", height: "4px", marginBottom: "16px", overflow: "hidden" }}>
+              <div style={{
+                height: "100%",
+                width: `${playbook.overallScore}%`,
+                background: overallColor,
+                borderRadius: "2px",
+                animation: "scoreBar 1.2s ease forwards"
+              }} />
+            </div>
+            <p style={{ fontSize: "19px", color: "#f2e4ca", margin: "0 0 10px", fontWeight: "500" }}>
+              {playbook.overallDescriptor}
             </p>
-            {playbook.thirtyDayPlaybook?.map((item, i) => (
-              <div key={i} style={{ display: "flex", gap: "16px", marginBottom: i < playbook.thirtyDayPlaybook.length - 1 ? "20px" : 0 }}>
-                <span style={{ color: "#b8a98a", fontSize: "13px", fontWeight: "600", minWidth: "20px", paddingTop: "2px" }}>{i + 1}.</span>
-                <p style={{ fontSize: "16px", lineHeight: "1.7", color: "#d8d0c0", margin: 0 }}>{item}</p>
-              </div>
-            ))}
+            <p style={{ fontSize: "16px", color: "#7a6a58", margin: 0, lineHeight: "1.7", fontStyle: "italic", fontFamily: "'Georgia', serif", fontWeight: "300" }}>
+              {playbook.overallSummary}
+            </p>
           </div>
 
-          {/* Score */}
-          {playbook.score && (
-            <div style={{
-              marginTop: "40px",
-              padding: "40px",
-              background: "#0f0f0f",
-              border: "1px solid #2a2a2a",
-              borderRadius: "6px",
-              animation: "fadeIn 0.8s ease 0.3s both"
-            }}>
-              <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a5a5a", marginBottom: "20px" }}>⚡ Market Positioning Score</p>
-
-              <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "16px" }}>
-                <span style={{
-                  fontSize: "72px",
-                  fontWeight: "400",
-                  lineHeight: "1",
-                  color: playbook.score >= 75 ? "#7ec98a" : playbook.score >= 55 ? "#b8a98a" : "#c0705a",
-                  letterSpacing: "-0.04em"
-                }}>{playbook.score}</span>
-                <span style={{ fontSize: "24px", color: "#3a3a3a", paddingBottom: "8px" }}>/100</span>
-              </div>
-
-              <div style={{ background: "#1e1e1e", borderRadius: "2px", height: "4px", marginBottom: "20px", overflow: "hidden" }}>
-                <div style={{
-                  height: "100%",
-                  width: `${playbook.score}%`,
-                  background: playbook.score >= 75 ? "#7ec98a" : playbook.score >= 55 ? "#b8a98a" : "#c0705a",
-                  borderRadius: "2px",
-                  transition: "width 1.2s ease",
-                  animation: "scoreBar 1.2s ease forwards"
-                }} />
-              </div>
-
-              <p style={{ fontSize: "18px", color: "#f0ece4", margin: "0 0 8px", lineHeight: "1.5" }}>
-                {playbook.scoreLabel}
-              </p>
-              <p style={{ fontSize: "14px", color: "#6a6060", margin: "0 0 32px", lineHeight: "1.6", fontStyle: "italic" }}>
-                {playbook.scoreContext}
-              </p>
-
-              <div style={{
-                borderTop: "1px solid #2a2a2a",
-                paddingTop: "28px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-                gap: "16px"
+          {/* P-O-W-E-R Sections */}
+          {POWER_SECTIONS.map(({ key, letter, label, subtitle }) => {
+            const section = playbook[key];
+            if (!section) return null;
+            return (
+              <div key={key} style={{
+                marginBottom: "40px",
+                paddingBottom: "40px",
+                borderBottom: "1px solid #2a1e18"
               }}>
-                <p style={{ fontSize: "15px", color: "#8a8070", margin: 0, maxWidth: "340px", lineHeight: "1.6" }}>
-                  Want to close that gap?  Let&#39;s talk about your unfair advantage.
+                <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "10px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: "700", color: "#861442", letterSpacing: "0.15em" }}>{letter}</span>
+                  <p style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#5a4a3a", margin: 0, fontWeight: "500" }}>
+                    {label} — {subtitle}
+                  </p>
+                </div>
+                <ScoreBar score={section.score} />
+                <p style={{ fontSize: "17px", lineHeight: "1.8", color: "#d8c8b0", margin: 0, fontWeight: "300" }}>
+                  {section.content}
                 </p>
-                
-                  <a href="https://monicapoling.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "inline-block",
-                    padding: "14px 28px",
-                    background: "#b8a98a",
-                    color: "#0d0d0d",
-                    borderRadius: "4px",
-                    fontSize: "13px",
-                    fontFamily: "'Georgia', serif",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    fontWeight: "600",
-                    textDecoration: "none",
-                    whiteSpace: "nowrap"
-                  }}
-                >
-                  Book a Strategy Call →
-                </a>
               </div>
+            );
+          })}
+
+          {/* Brand Personality */}
+          {playbook.brandPersonality && (
+            <div style={{
+              background: "#1e1510",
+              border: "1px solid #3d2e24",
+              borderRadius: "6px",
+              padding: "36px 40px",
+              marginBottom: "40px"
+            }}>
+              <p style={{ fontSize: "12px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#861442", marginBottom: "16px", fontWeight: "500" }}>✨ Bonus: Brand Personality</p>
+              <p style={{ fontSize: "17px", lineHeight: "1.8", color: "#d8c8b0", margin: 0, fontWeight: "300" }}>
+                {playbook.brandPersonality}
+              </p>
             </div>
           )}
 
+          {/* Fetch debug info on success (if issues) */}
+          {debugInfo && (
+            <div style={{ marginBottom: "32px" }}>
+              <button
+                onClick={() => setDebugOpen(o => !o)}
+                style={{
+                  background: "none",
+                  border: "1px solid #3d2e24",
+                  borderRadius: "3px",
+                  color: "#6a5040",
+                  fontSize: "12px",
+                  fontFamily: "'Poppins', sans-serif",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  padding: "6px 12px"
+                }}
+              >
+                {debugOpen ? "Hide" : "Show"} Fetch Info
+              </button>
+              {debugOpen && (
+                <pre style={{
+                  marginTop: "10px",
+                  padding: "16px",
+                  background: "#1e1510",
+                  border: "1px solid #3d2e24",
+                  borderRadius: "4px",
+                  color: "#9a8070",
+                  fontSize: "12px",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  lineHeight: "1.6"
+                }}>{debugInfo}</pre>
+              )}
+            </div>
+          )}
+
+          {/* CTA */}
+          <div style={{
+            padding: "40px",
+            background: "#1e1510",
+            border: "1px solid #3d2e24",
+            borderRadius: "6px"
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "16px"
+            }}>
+              <p style={{ fontSize: "16px", color: "#9a8070", margin: 0, maxWidth: "340px", lineHeight: "1.7", fontWeight: "300" }}>
+                Want to close that gap? Let's talk about your unfair advantage.
+              </p>
+              <a
+                href="https://monicapoling.com/vision"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-block",
+                  padding: "15px 28px",
+                  background: "#861442",
+                  color: "#f9ebea",
+                  borderRadius: "4px",
+                  fontSize: "13px",
+                  fontFamily: "'Poppins', sans-serif",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  fontWeight: "600",
+                  textDecoration: "none",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                Book a Vision Call →
+              </a>
+            </div>
+          </div>
+
           {/* Footer */}
-          <div style={{ marginTop: "48px", paddingTop: "28px", borderTop: "1px solid #1e1e1e", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-            <p style={{ fontSize: "13px", color: "#3a3a3a", margin: 0 }}>Monica Poling · monicapoling.com</p>
+          <div style={{ marginTop: "48px", paddingTop: "28px", borderTop: "1px solid #2a1e18", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+            <p style={{ fontSize: "13px", color: "#4a3a2a", margin: 0, fontWeight: "400" }}>Monica Poling · monicapoling.com</p>
             <button
-              onClick={() => { setPlaybook(null); setUrl(""); }}
+              onClick={() => { setPlaybook(null); setUrl(""); setError(null); setDebugInfo(null); }}
               style={{
                 padding: "10px 20px",
                 background: "transparent",
-                border: "1px solid #2e2e2e",
+                border: "1px solid #3d2e24",
                 borderRadius: "4px",
-                color: "#5a5a5a",
+                color: "#6a5040",
                 fontSize: "12px",
-                fontFamily: "'Georgia', serif",
+                fontFamily: "'Poppins', sans-serif",
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
-                cursor: "pointer"
+                cursor: "pointer",
+                fontWeight: "500"
               }}
             >
-              New Playbook
+              New Report
             </button>
           </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes scoreBar {
-          from { width: 0%; }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.4); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        input::placeholder { color: #3a3a3a; }
-        * { box-sizing: border-box; }
-      `}</style>
     </div>
   );
 }
