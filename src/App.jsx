@@ -12,7 +12,7 @@ Use the web_search tool to fetch and read the content at the provided URL before
 3. Try the root domain if a subpage was given
 Do NOT rely on LLM memory. Only use what you find by actually visiting the URL.
 
-Return ONLY valid JSON. No markdown, no preamble, no backticks. Adhere strictly to word counts per section.
+Return ONLY valid JSON. No markdown, no preamble, no backticks, no citation tags, no XML markup, no annotation syntax of any kind. Clean JSON only. Adhere strictly to word counts per section.
 
 SCORING RUBRIC (internal only, do not output as separate field):
 18-20: Exceptional
@@ -114,7 +114,10 @@ Then generate the full Prestige Score Report JSON.`
     throw new Error(`No text block in response. Content types received: ${data.content?.map(b => b.type).join(", ") || "none"}`);
   }
 
-  const clean = textBlock.text.replace(/```json|```/g, "").trim();
+  const clean = textBlock.text
+    .replace(/```json|```/g, "")
+    .replace(/<[^>]*cite[^>]*>/gi, "")
+    .trim();
 
   try {
     return JSON.parse(clean);
@@ -252,70 +255,80 @@ export default function App() {
       </div>
 
       {/* Hero */}
-      <div style={{ padding: "72px 40px 56px", maxWidth: "780px", margin: "0 auto" }}>
-        <p style={{ fontSize: "12px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#f2e4ca", marginBottom: "6px", fontWeight: "500" }}>Market Intelligence</p>
-        <p style={{ fontSize: "12px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#f2e4ca", marginBottom: "16px", fontWeight: "500" }}>Get Your</p>
+      <div style={{ padding: "80px 40px 64px", maxWidth: "860px", margin: "0 auto" }}>
+        <p style={{ fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", color: "#7a6050", marginBottom: "48px", fontWeight: "500" }}>Market Intelligence</p>
+        <p style={{ fontSize: "15px", color: "#f2e4ca", margin: "0 0 6px", fontWeight: "400", letterSpacing: "0.01em" }}>Get Your</p>
         <h1 style={{
-          fontSize: "clamp(36px, 5vw, 58px)",
-          fontWeight: "300",
-          lineHeight: "1.1",
-          margin: "0 0 28px",
-          color: "#f2e4ca",
-          letterSpacing: "-0.02em",
-          fontFamily: "'Georgia', serif"
+          fontSize: "clamp(42px, 6vw, 72px)",
+          fontWeight: "700",
+          lineHeight: "1.05",
+          margin: "0 0 24px",
+          color: "#861442",
+          letterSpacing: "-0.03em",
+          fontFamily: "'Poppins', sans-serif"
         }}>
-          <span style={{ color: "#861442", fontStyle: "italic" }}>Prestige Score</span>
+          Prestige Score
         </h1>
-        <p style={{ fontSize: "18px", lineHeight: "1.75", color: "#9a8070", maxWidth: "520px", margin: "0 0 48px", fontWeight: "300" }}>
-          Your Prestige Score is waiting.<br />
-          Let's see what the algorithms know about you.
+        <p style={{ fontSize: "17px", lineHeight: "1.75", color: "#f2e4ca", maxWidth: "560px", margin: "0 0 52px", fontWeight: "300" }}>
+          Unlock your Prestige Score to see exactly how your brand, offers, and presence stack up in today's market. Get your score now to reveal hidden opportunities, fix weak spots, and take your next best step with confidence.
         </p>
 
-        {/* Input */}
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-          <input
-            type="url"
-            value={url}
-            onChange={e => setUrl(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && !loading && handleGenerate()}
-            placeholder="https://yourwebsite.com"
-            style={{
-              flex: "1",
-              minWidth: "260px",
-              padding: "17px 20px",
-              background: "#1e1510",
-              border: "1px solid #3d2e24",
-              borderRadius: "4px",
-              color: "#f2e4ca",
-              fontSize: "16px",
-              fontFamily: "'Poppins', sans-serif",
-              outline: "none",
-              transition: "border-color 0.2s",
-              fontWeight: "300"
-            }}
-            onFocus={e => e.target.style.borderColor = "#861442"}
-            onBlur={e => e.target.style.borderColor = "#3d2e24"}
-          />
-          <button
-            onClick={handleGenerate}
-            disabled={loading || !url.trim()}
-            style={{
-              padding: "17px 32px",
-              background: loading ? "#3d2e24" : "#861442",
-              color: loading ? "#6a5040" : "#f9ebea",
-              border: "none",
-              borderRadius: "4px",
-              fontSize: "13px",
-              fontFamily: "'Poppins', sans-serif",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              cursor: loading ? "not-allowed" : "pointer",
-              transition: "all 0.2s",
-              fontWeight: "600"
-            }}
+        {/* Input — full width search bar style */}
+        <div style={{ position: "relative", maxWidth: "680px" }}>
+          <div style={{
+            position: "relative",
+            border: "1px solid #3d2e24",
+            borderRadius: "6px",
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            background: "#1a120e",
+            transition: "border-color 0.2s"
+          }}
+            onFocus={() => {}}
           >
-            {loading ? "Analyzing..." : "Generate Report →"}
-          </button>
+            <span style={{ padding: "0 0 0 20px", color: "#5a4030", fontSize: "12px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: "500", whiteSpace: "nowrap" }}>
+              Get your Prestige Score
+            </span>
+            <span style={{ color: "#3d2e24", padding: "0 12px", fontSize: "14px" }}>—</span>
+            <input
+              type="url"
+              value={url}
+              onChange={e => setUrl(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && !loading && handleGenerate()}
+              placeholder="your-website.com"
+              style={{
+                flex: "1",
+                padding: "20px 16px",
+                background: "transparent",
+                border: "none",
+                color: "#f2e4ca",
+                fontSize: "17px",
+                fontFamily: "'Poppins', sans-serif",
+                outline: "none",
+                fontWeight: "300"
+              }}
+            />
+            <button
+              onClick={handleGenerate}
+              disabled={loading || !url.trim()}
+              style={{
+                padding: "20px 24px",
+                background: "transparent",
+                border: "none",
+                borderLeft: "1px solid #3d2e24",
+                color: loading ? "#4a3020" : "#861442",
+                fontSize: "20px",
+                cursor: loading ? "not-allowed" : "pointer",
+                transition: "color 0.2s",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+            >
+              {loading ? "⋯" : "→"}
+            </button>
+          </div>
         </div>
 
         {/* Loading */}
@@ -562,4 +575,3 @@ export default function App() {
     </div>
   );
 }
-
