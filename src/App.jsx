@@ -1,10 +1,6 @@
 import { useState } from "react";
 
-const PRESTIGE_SYSTEM_PROMPT = `You are a strategic business analyst creating a personalized Prestige Score Report for a small, mid-size, or large business, nonprofit, government entity, or educational institution.
-
-Your tone is warm, direct, and expert — like a trusted advisor who has done their homework. This report could land in front of anyone from a solo founder to a senior executive. It is sophisticated in its analysis but avoids jargon like "pipeline," "scale," "leverage," or "synergy." You are built to impress with ideas, not consultant-speak.
-
-The report should feel like it was written specifically for this organization — not AI generated.
+const PRESTIGE_SYSTEM_PROMPT = `You are a strategic business analyst creating a Prestige Score Report. Your tone is warm, direct, and expert — like a trusted advisor who has done their homework. Avoid jargon like "pipeline," "scale," "leverage," or "synergy." The report should feel written specifically for this organization — not AI generated.
 
 Use the web_search tool to fetch and read the content at the provided URL before generating any output. If the first fetch fails or returns no useful content, try these variations in order:
 1. Add or remove a trailing slash
@@ -12,7 +8,7 @@ Use the web_search tool to fetch and read the content at the provided URL before
 3. Try the root domain if a subpage was given
 Do NOT rely on LLM memory. Only use what you find by actually visiting the URL.
 
-Return ONLY valid JSON. No markdown, no preamble, no backticks, no citation tags, no XML markup, no annotation syntax of any kind. Clean JSON only. Adhere strictly to word counts per section.
+Return ONLY valid JSON. No markdown, no preamble, no backticks, no citation tags, no XML markup, no annotation syntax of any kind. Clean JSON only.
 
 SCORING RUBRIC (internal only, do not output as separate field):
 18-20: Exceptional
@@ -27,28 +23,29 @@ JSON Schema:
   "dateGenerated": "Month YYYY",
   "overallScore": 72,
   "overallDescriptor": "string — one of: Category Leader | Strong Foundation, Underutilized Story | Solid Presence, Clear Gaps | Underdeveloped Positioning | Significant Opportunity",
-  "overallSummary": "STRICT 2 sentences max, 40 words max. What is working and what is the primary gap. Be specific to this organization — no generics.",
+  "orgParagraph": "2-3 warm sentences about the organization — include the business name, what they do, and something specific and genuine about what makes them worth paying attention to. Written as if you are introducing them to a smart friend.",
+  "scoreParagraph": "The score justification. Start with a punchy summarizing idea (one clause or phrase that captures the essence — not a label, not a header, just a thought that sets up what follows). Then three sentences: what is genuinely working, what is the primary gap holding the score back, and one forward-looking observation. Be specific. Be warm. No generics.",
   "prestige": {
     "score": 14,
-    "content": "ONE sentence only. Is their positioning distinct or generic? For nonprofits/govt/edu: is the mission stated with conviction?"
+    "content": "TWO sentences. Warm, observational tone. Is their positioning distinct or generic? For nonprofits/govt/edu: is the mission stated with conviction? End with something that feels like honest encouragement or a genuine observation."
   },
   "origin": {
     "score": 12,
-    "content": "ONE sentence only. For for-profit: is the founder/leader story visible? For nonprofits/govt/edu: is the founding mission active or buried?"
+    "content": "TWO sentences. Warm, observational tone. For for-profit: is the founder/leader story visible and compelling? For nonprofits/govt/edu: is the founding mission active or buried under compliance language?"
   },
   "wow": {
     "score": 16,
-    "content": "ONE sentence only. Name the standout factor AND the Sleeping Giant in the same sentence if possible."
+    "content": "TWO sentences. Warm, observational tone. Name the standout factor. Also name the Sleeping Giant — the high-value thing that should be more elevated."
   },
   "expertise": {
     "score": 10,
-    "content": "ONE sentence only. Is the depth of knowledge visible or assumed?"
+    "content": "TWO sentences. Warm, observational tone. Is the depth of knowledge visible or assumed? Look for credentials, methodologies, frameworks, track record."
   },
   "reputation": {
     "score": 8,
-    "content": "ONE sentence only. On-page validation only — testimonials, logos, press, awards."
+    "content": "TWO sentences. Warm, observational tone. On-page validation only — testimonials, logos, press, awards. Is social proof doing any conversion work?"
   },
-  "brandPersonality": "TWO sentences max. Based on tone, language, word choice, and content structure only — no visual analysis. What personality does this brand project and where is the friction between that personality and what their audience likely expects.",
+  "brandPersonality": "Start with the business name. Two to three warm sentences. Based on tone, language, word choice, and content structure only — no visual analysis. What personality does this brand project? Then name the friction: the gap between the personality they are projecting and what their audience likely expects or needs. Frame it as an observation, not a criticism.",
   "urlsAttempted": ["https://example.com", "https://www.example.com"],
   "fetchSuccess": true,
   "fetchNote": "Optional string — only include if there were issues fetching. Describe what happened."
@@ -254,11 +251,10 @@ export default function App() {
       </div>
 
       {/* Hero */}
-      <div style={{ padding: "80px 40px 64px", maxWidth: "860px", margin: "0 auto" }}>
-        <p style={{ fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", color: "#7a6050", marginBottom: "48px", fontWeight: "500" }}>Market Intelligence</p>
-        <p style={{ fontSize: "15px", color: "#f2e4ca", margin: "0 0 6px", fontWeight: "400", letterSpacing: "0.01em" }}>Get Your</p>
+      <div style={{ padding: "80px 40px 64px", maxWidth: "780px", margin: "0 auto" }}>
+        <p style={{ fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", color: "#5a4a3a", marginBottom: "48px", fontWeight: "400" }}>Market Intelligence</p>
         <h1 style={{
-          fontSize: "clamp(42px, 6vw, 72px)",
+          fontSize: "clamp(34px, 5vw, 56px)",
           fontWeight: "700",
           lineHeight: "1.05",
           margin: "0 0 24px",
@@ -269,65 +265,54 @@ export default function App() {
           Prestige Score
         </h1>
         <p style={{ fontSize: "17px", lineHeight: "1.75", color: "#f2e4ca", maxWidth: "560px", margin: "0 0 52px", fontWeight: "300" }}>
-          Unlock your Prestige Score to see exactly how your brand, offers, and presence stack up in today's market. Get your score now to reveal hidden opportunities, fix weak spots, and take your next best step with confidence.
+          Unlock your Prestige Score to see exactly how your business stacks up in today's market.
         </p>
 
-        {/* Input — full width search bar style */}
-        <div style={{ position: "relative", maxWidth: "680px" }}>
-          <div style={{
-            position: "relative",
-            border: "1px solid #3d2e24",
-            borderRadius: "6px",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            background: "#1a120e",
-            transition: "border-color 0.2s"
-          }}
-            onFocus={() => {}}
+        {/* Input */}
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", maxWidth: "680px" }}>
+          <input
+            type="url"
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && !loading && handleGenerate()}
+            placeholder="Enter your URL"
+            style={{
+              flex: "1",
+              minWidth: "200px",
+              padding: "15px 20px",
+              background: "#1a120e",
+              border: "1px solid #3d2e24",
+              borderRadius: "4px",
+              color: "#f2e4ca",
+              fontSize: "15px",
+              fontFamily: "'Poppins', sans-serif",
+              outline: "none",
+              fontWeight: "300"
+            }}
+            onFocus={e => e.target.style.borderColor = "#861442"}
+            onBlur={e => e.target.style.borderColor = "#3d2e24"}
+          />
+          <button
+            onClick={handleGenerate}
+            disabled={loading || !url.trim()}
+            style={{
+              padding: "15px 28px",
+              background: loading ? "#3d2e24" : "#861442",
+              color: loading ? "#6a5040" : "#f9ebea",
+              border: "none",
+              borderRadius: "4px",
+              fontSize: "13px",
+              fontFamily: "'Poppins', sans-serif",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.2s",
+              fontWeight: "600",
+              whiteSpace: "nowrap"
+            }}
           >
-            <span style={{ padding: "0 0 0 20px", color: "#5a4030", fontSize: "12px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: "500", whiteSpace: "nowrap" }}>
-              Get your Prestige Score
-            </span>
-            <span style={{ color: "#3d2e24", padding: "0 12px", fontSize: "14px" }}>—</span>
-            <input
-              type="url"
-              value={url}
-              onChange={e => setUrl(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && !loading && handleGenerate()}
-              placeholder="your-website.com"
-              style={{
-                flex: "1",
-                padding: "20px 16px",
-                background: "transparent",
-                border: "none",
-                color: "#f2e4ca",
-                fontSize: "17px",
-                fontFamily: "'Poppins', sans-serif",
-                outline: "none",
-                fontWeight: "300"
-              }}
-            />
-            <button
-              onClick={handleGenerate}
-              disabled={loading || !url.trim()}
-              style={{
-                padding: "20px 24px",
-                background: "transparent",
-                border: "none",
-                borderLeft: "1px solid #3d2e24",
-                color: loading ? "#4a3020" : "#861442",
-                fontSize: "20px",
-                cursor: loading ? "not-allowed" : "pointer",
-                transition: "color 0.2s",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center"
-              }}
-            >
-              {loading ? "⋯" : "→"}
-            </button>
-          </div>
+            {loading ? "Analyzing..." : "Get My Score →"}
+          </button>
         </div>
 
         {/* Loading */}
@@ -417,22 +402,25 @@ export default function App() {
               <span style={{ fontSize: "72px", fontWeight: "300", lineHeight: "1", color: overallColor, letterSpacing: "-0.04em", fontFamily: "'Georgia', serif" }}>
                 {playbook.overallScore}
               </span>
-              <span style={{ fontSize: "22px", color: "#3d2e24", paddingBottom: "6px" }}>/100</span>
+              <span style={{ fontSize: "22px", color: "#f2e4ca", paddingBottom: "6px", fontWeight: "600" }}>/100</span>
             </div>
-            <div style={{ background: "#2b211b", borderRadius: "2px", height: "3px", marginBottom: "20px", overflow: "hidden" }}>
+            <div style={{ background: "#3d2e24", borderRadius: "2px", height: "3px", marginBottom: "20px", overflow: "hidden" }}>
               <div style={{
                 height: "100%",
                 width: `${playbook.overallScore}%`,
-                background: overallColor,
+                background: "#861442",
                 borderRadius: "2px",
                 animation: "scoreBar 1.2s ease forwards"
               }} />
             </div>
-            <p style={{ fontSize: "15px", color: "#f2e4ca", margin: "0 0 10px", fontWeight: "600", letterSpacing: "0.01em" }}>
+            <p style={{ fontSize: "15px", color: "#f2e4ca", margin: "0 0 6px", fontWeight: "600", letterSpacing: "0.01em" }}>
               {playbook.overallDescriptor}
             </p>
+            <p style={{ fontSize: "15px", color: "#f2e4ca", margin: "0 0 16px", lineHeight: "1.75", fontWeight: "400" }}>
+              {playbook.orgParagraph}
+            </p>
             <p style={{ fontSize: "15px", color: "#f2e4ca", margin: 0, lineHeight: "1.75", fontWeight: "400" }}>
-              {playbook.overallSummary}
+              {playbook.scoreParagraph}
             </p>
           </div>
 
@@ -444,7 +432,7 @@ export default function App() {
             padding: "32px 36px",
             marginBottom: "16px"
           }}>
-            <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a4a3a", marginBottom: "24px", fontWeight: "500" }}>Score Breakdown</p>
+            <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#f2e4ca", marginBottom: "24px", fontWeight: "600" }}>📊 Score Breakdown</p>
             {POWER_SECTIONS.map(({ key, letter, label, subtitle }, idx) => {
               const section = playbook[key];
               if (!section) return null;
@@ -457,11 +445,11 @@ export default function App() {
                     </p>
                     <span style={{ fontSize: "13px", color: "#f2e4ca", fontWeight: "600", whiteSpace: "nowrap", marginLeft: "16px" }}>{section.score}/20</span>
                   </div>
-                  <div style={{ background: "#2b211b", borderRadius: "2px", height: "3px", marginBottom: "8px", overflow: "hidden" }}>
+                  <div style={{ background: "#3d2e24", borderRadius: "2px", height: "3px", marginBottom: "8px", overflow: "hidden" }}>
                     <div style={{
                       height: "100%",
                       width: `${Math.round((section.score / 20) * 100)}%`,
-                      background: section.score >= 15 ? "#06472a" : section.score >= 10 ? "#861442" : "#8a5a3a",
+                      background: "#861442",
                       borderRadius: "2px",
                       transition: "width 1.2s ease"
                     }} />
@@ -483,7 +471,7 @@ export default function App() {
               padding: "32px 36px",
               marginBottom: "16px"
             }}>
-              <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#5a4a3a", marginBottom: "16px", fontWeight: "500" }}>✨ Bonus: Brand Personality</p>
+              <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#f2e4ca", marginBottom: "16px", fontWeight: "600" }}>✨ Bonus: Brand Personality</p>
               <p style={{ fontSize: "15px", lineHeight: "1.75", color: "#f2e4ca", margin: 0, fontWeight: "400" }}>
                 {playbook.brandPersonality}
               </p>
@@ -570,7 +558,12 @@ export default function App() {
 
           {/* Footer */}
           <div style={{ marginTop: "48px", paddingTop: "28px", borderTop: "1px solid #2a1e18" }}>
-            <p style={{ fontSize: "13px", color: "#9a8070", margin: 0, fontWeight: "400" }}>Monica Poling · monicapoling.com</p>
+            <p style={{ fontSize: "13px", color: "#9a8070", margin: 0, fontWeight: "400" }}>
+              Monica Poling ·{" "}
+              <a href="https://monicapoling.com" target="_blank" rel="noopener noreferrer" style={{ color: "#9a8070", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+                monicapoling.com
+              </a>
+            </p>
           </div>
         </div>
       )}
