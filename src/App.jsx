@@ -214,15 +214,16 @@ export default function App() {
     setEmailSubmitting(true);
     setEmailError(null);
     try {
-      const formData = new FormData();
-      formData.append("53a7cfa2-2813-414e-9d64-9e694ddd6f4f", firstName.trim());
-      formData.append("2fb97055-9469-4a7b-b683-6efe79e0082f", email.trim());
-      formData.append("09f8b2ab-cb2f-431e-8cf7-5fdbf5d35362", url.trim());
-      formData.append("e4a250e0-6c8c-4390-b6b6-7a501ef8b185", subscribe ? "true" : "false");
-      await fetch("https://tally.so/r/A782E0", {
+      await fetch("https://script.google.com/macros/s/AKfycbxtCPP6q6wqCUYlSEtNdyQxFF_22K94lvgP4MJytXYX-kWqpCYkZnXG7tYV5fSZThYj/exec", {
         method: "POST",
         mode: "no-cors",
-        body: formData
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: firstName.trim(),
+          email: email.trim(),
+          website: url.trim(),
+          subscribe: subscribe ? "true" : "false"
+        })
       });
       setEmailSubmitted(true);
     } catch (e) {
@@ -283,7 +284,7 @@ export default function App() {
       <div style={{ padding: "80px 40px 64px", maxWidth: "780px", margin: "0 auto" }}>
         <p style={{ fontSize: "11px", letterSpacing: "0.25em", textTransform: "uppercase", color: "#5a4a3a", marginBottom: "48px", fontWeight: "400" }}>Market Intelligence</p>
         <h1 style={{
-          fontSize: "clamp(34px, 5vw, 56px)",
+          fontSize: "clamp(32px, 5vw, 54px)",
           fontWeight: "700",
           lineHeight: "1.05",
           margin: "0 0 24px",
@@ -294,7 +295,7 @@ export default function App() {
           Prestige Score
         </h1>
         <p style={{ fontSize: "17px", lineHeight: "1.75", color: "#f2e4ca", maxWidth: "560px", margin: "0 0 52px", fontWeight: "300" }}>
-          Unlock your Prestige Score to see exactly how your business stacks up in today's market.
+          Great businesses often get overlooked because they're trained to do excellent work, not to showcase their work strategically. Do you own your category story? Unlock your Prestige Score now.
         </p>
 
         {/* Input */}
@@ -594,18 +595,9 @@ export default function App() {
                     onBlur={e => e.target.style.borderColor = "#3d2e24"}
                   />
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <input
-                    type="checkbox"
-                    id="subscribe"
-                    checked={subscribe}
-                    onChange={e => setSubscribe(e.target.checked)}
-                    style={{ accentColor: "#861442", width: "16px", height: "16px", cursor: "pointer" }}
-                  />
-                  <label htmlFor="subscribe" style={{ fontSize: "13px", color: "#9a8070", fontWeight: "300", cursor: "pointer" }}>
-                    Subscribe me to the Let's Make Some Noise newsletter
-                  </label>
-                </div>
+                <p style={{ fontSize: "12px", color: "#5a4a3a", margin: 0, fontWeight: "300" }}>
+                  By submitting, you agree to receive the Let's Make Some Noise newsletter.
+                </p>
                 {emailError && (
                   <p style={{ fontSize: "13px", color: "#c0705a", margin: 0 }}>{emailError}</p>
                 )}
@@ -683,4 +675,3 @@ export default function App() {
     </div>
   );
 }
-
