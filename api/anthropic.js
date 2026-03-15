@@ -1,27 +1,34 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     return res.status(200).end();
   }
 
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   try {
-    // Extract the URL from the message content
     const userMessage = req.body.messages?.[0]?.content || '';
     const urlMatch = userMessage.match(/https?:\/\/[^\s.]+\.[^\s]+/);
-    let pageContent = '';
 
+    let bodyToSend = req.body;
+
+    // Only do the scrape enrichment for the Phase 1 prestige score call
+    // (which has a URL in the message). Phase 2 calls pass through untouched.
     if (urlMatch) {
+      let pageContent = '';
       try {
         const pageRes = await fetch(urlMatch[0], {
           headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1)' }
         });
         const html = await pageRes.text();
-        // Strip HTML tags and collapse whitespace
         pageContent = html
           .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
           .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
@@ -32,18 +39,17 @@ export default async function handler(req, res) {
       } catch (e) {
         pageContent = 'Could not fetch page content.';
       }
-    }
 
-    // Inject page content into the message
-    const enrichedBody = {
-      ...req.body,
-      messages: [
-        {
-          role: 'user',
-          content: `Here is the actual current content scraped from the website ${urlMatch?.[0]}:\n\n${pageContent}\n\nUsing ONLY the above content, generate the Market Intel Playbook JSON.`
-        }
-      ]
-    };
+      bodyToSend = {
+        ...req.body,
+        messages: [
+          {
+            role: 'user',
+            content: `Here is the actual current content scraped from the website ${urlMatch[0]}:\n\n${pageContent}\n\nUsing ONLY the above content, generate the Prestige Score JSON.`
+          }
+        ]
+      };
+    }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -53,11 +59,12 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
         'anthropic-beta': 'web-search-2025-03-05'
       },
-      body: JSON.stringify(enrichedBody)
+      body: JSON.stringify(bodyToSend)
     });
 
     const data = await response.json();
     return res.status(response.status).json(data);
+
   } catch (error) {
     return res.status(500).json({ error: 'API request failed', details: error.message });
   }
