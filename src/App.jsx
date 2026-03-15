@@ -159,6 +159,12 @@ export default function App() {
   const [debugInfo, setDebugInfo] = useState(null);
   const [debugOpen, setDebugOpen] = useState(false);
   const [progress, setProgress] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subscribe, setSubscribe] = useState(false);
+  const [emailSubmitted, setEmailSubmitted] = useState(false);
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState(null);
 
   const handleGenerate = async () => {
     if (!url.trim()) return;
@@ -200,6 +206,29 @@ export default function App() {
       clearInterval(interval);
       setLoading(false);
       setProgress("");
+    }
+  };
+
+  const handleEmailSubmit = async () => {
+    if (!email.trim() || !firstName.trim()) return;
+    setEmailSubmitting(true);
+    setEmailError(null);
+    try {
+      const formData = new FormData();
+      formData.append("53a7cfa2-2813-414e-9d64-9e694ddd6f4f", firstName.trim());
+      formData.append("2fb97055-9469-4a7b-b683-6efe79e0082f", email.trim());
+      formData.append("09f8b2ab-cb2f-431e-8cf7-5fdbf5d35362", url.trim());
+      formData.append("e4a250e0-6c8c-4390-b6b6-7a501ef8b185", subscribe ? "true" : "false");
+      await fetch("https://tally.so/r/A782E0", {
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+      });
+      setEmailSubmitted(true);
+    } catch (e) {
+      setEmailError("Something went wrong. Please try again.");
+    } finally {
+      setEmailSubmitting(false);
     }
   };
 
@@ -518,6 +547,87 @@ export default function App() {
             </div>
           )}
 
+          {/* Email Capture */}
+          <div style={{
+            background: "#1e1510",
+            border: "1px solid #3d2e24",
+            borderRadius: "6px",
+            padding: "32px 36px",
+            marginBottom: "16px"
+          }}>
+            <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#f2e4ca", marginBottom: "8px", fontWeight: "600" }}>📩 Want an Expanded Report?</p>
+            <p style={{ fontSize: "15px", color: "#9a8070", marginBottom: "24px", lineHeight: "1.7", fontWeight: "300" }}>
+              Enter your name and email and we'll send you a deeper dive on your positioning opportunities.
+            </p>
+            {emailSubmitted ? (
+              <p style={{ fontSize: "15px", color: "#06472a", fontWeight: "500" }}>✓ Got it! You'll hear from us soon.</p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={e => setFirstName(e.target.value)}
+                    placeholder="First name"
+                    style={{
+                      flex: "1", minWidth: "140px", padding: "12px 16px",
+                      background: "#2b211b", border: "1px solid #3d2e24", borderRadius: "4px",
+                      color: "#f2e4ca", fontSize: "14px", fontFamily: "'Poppins', sans-serif",
+                      outline: "none", fontWeight: "300"
+                    }}
+                    onFocus={e => e.target.style.borderColor = "#861442"}
+                    onBlur={e => e.target.style.borderColor = "#3d2e24"}
+                  />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleEmailSubmit()}
+                    placeholder="Email address"
+                    style={{
+                      flex: "2", minWidth: "200px", padding: "12px 16px",
+                      background: "#2b211b", border: "1px solid #3d2e24", borderRadius: "4px",
+                      color: "#f2e4ca", fontSize: "14px", fontFamily: "'Poppins', sans-serif",
+                      outline: "none", fontWeight: "300"
+                    }}
+                    onFocus={e => e.target.style.borderColor = "#861442"}
+                    onBlur={e => e.target.style.borderColor = "#3d2e24"}
+                  />
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <input
+                    type="checkbox"
+                    id="subscribe"
+                    checked={subscribe}
+                    onChange={e => setSubscribe(e.target.checked)}
+                    style={{ accentColor: "#861442", width: "16px", height: "16px", cursor: "pointer" }}
+                  />
+                  <label htmlFor="subscribe" style={{ fontSize: "13px", color: "#9a8070", fontWeight: "300", cursor: "pointer" }}>
+                    Subscribe me to the Let's Make Some Noise newsletter
+                  </label>
+                </div>
+                {emailError && (
+                  <p style={{ fontSize: "13px", color: "#c0705a", margin: 0 }}>{emailError}</p>
+                )}
+                <button
+                  onClick={handleEmailSubmit}
+                  disabled={emailSubmitting || !email.trim() || !firstName.trim()}
+                  style={{
+                    alignSelf: "flex-start", padding: "12px 24px",
+                    background: emailSubmitting || !email.trim() || !firstName.trim() ? "#3d2e24" : "#861442",
+                    color: emailSubmitting || !email.trim() || !firstName.trim() ? "#6a5040" : "#f9ebea",
+                    border: "none", borderRadius: "4px", fontSize: "13px",
+                    fontFamily: "'Poppins', sans-serif", letterSpacing: "0.1em",
+                    textTransform: "uppercase", cursor: emailSubmitting || !email.trim() || !firstName.trim() ? "not-allowed" : "pointer",
+                    fontWeight: "600", transition: "all 0.2s"
+                  }}
+                >
+                  {emailSubmitting ? "Sending..." : "Send Me the Report →"}
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* CTA */}
           <div style={{
             padding: "40px",
@@ -573,3 +683,4 @@ export default function App() {
     </div>
   );
 }
+
