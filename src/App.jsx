@@ -43,7 +43,7 @@ JSON Schema:
   },
   "reputation": {
     "score": 8,
-    "content": "TWO sentences, 40 words max. Warm, observational tone. On-page validation only — testimonials, logos, press, awards. Is social proof doing any conversion work?"
+    "content": "TWO sentences, 40 words max. Warm, observational tone. Do they show up as a voice of their industry — press mentions, quoted expertise, speaking, awards, published thought leadership? Or is their credibility assumed rather than demonstrated?"
   },
   "brandPersonality": "2 sentences max, 35 words max. Start with the business name. What personality does this brand project? Then name the friction — the gap between the personality being projected and what the audience likely expects. Warm observation, not criticism.",
   "urlsAttempted": ["https://example.com", "https://www.example.com"],
@@ -81,7 +81,7 @@ JSON Schema:
 }
 
 Rules:
-- Find 2 real, named competitors. Prioritize direct competitors over general industry players.
+- Find 2 real, named competitors. Prioritize competitors who are winning — appearing in media, winning awards, being quoted as experts, or visibly setting the conversation in this space.
 - Find 3 industry trends that are genuinely relevant to this specific business right now.
 - Be specific. No generic trends like "digital transformation" unless you can tie it directly to something real.
 - Warm, direct tone. Like a smart advisor who did the research.`;
@@ -94,7 +94,7 @@ JSON Schema:
 {
   "moves": [
     {
-      "title": "Move name, 5 words max",
+      "title": "Increase [Specific Thing]: [Brief Why]",
       "context": "One sentence: why this move matters for this specific business based on what the report revealed.",
       "action": "One sentence: the single most important next step. Specific, not generic."
     }
@@ -202,7 +202,7 @@ const POWER_SECTIONS = [
   { key: "origin",      letter: "O", label: "Origin",     subtitle: "What's Your Origin Story?" },
   { key: "wow",         letter: "W", label: "Wow",        subtitle: "What Makes You Unforgettable?" },
   { key: "expertise",   letter: "E", label: "Expertise",  subtitle: "Do You Demonstrate Clear Expertise?" },
-  { key: "reputation",  letter: "R", label: "Reputation", subtitle: "Do Others Vouch For You?" },
+  { key: "reputation",  letter: "R", label: "Reputation", subtitle: "Are You the Voice of Your Industry?" },
 ];
 
 const BOX = {
@@ -529,17 +529,16 @@ export default function App() {
             )}
           </div>
 
-          {/* Phase 2: Competitors + Trends */}
+          {/* Phase 2: Industry-Leading Competitors */}
           {(intelLoading || intel || intelError) && (
             <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
-              <p style={SUPERTITLE}>🔍 Competitive Intelligence</p>
+              <p style={SUPERTITLE}>🏆 Industry-Leading Competitors</p>
               {intelLoading && <PulseLoader text="Searching for competitors and trends..." />}
               {intelError && <p style={{ color: "#c0705a", fontSize: "14px" }}>{intelError}</p>}
               {intel && (
                 <>
-                  <p style={{ fontSize: "13px", letterSpacing: "0.08em", textTransform: "uppercase", color: "#f2e4ca", margin: "0 0 16px", fontWeight: "600" }}>Top Competitors</p>
                   {intel.competitors?.map((c, i) => (
-                    <div key={i} style={{ marginBottom: i < intel.competitors.length - 1 ? "20px" : "28px", paddingBottom: i < intel.competitors.length - 1 ? "20px" : 0, borderBottom: i < intel.competitors.length - 1 ? "1px solid #3d2e24" : "none" }}>
+                    <div key={i} style={{ marginBottom: i < intel.competitors.length - 1 ? "20px" : 0, paddingBottom: i < intel.competitors.length - 1 ? "20px" : 0, borderBottom: i < intel.competitors.length - 1 ? "1px solid #3d2e24" : "none" }}>
                       <p style={{ fontSize: "15px", fontWeight: "600", color: "#f2e4ca", margin: "0 0 4px" }}>
                         {c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer" style={{ color: "#861442", textDecoration: "none" }}>{c.name} →</a> : c.name}
                       </p>
@@ -547,22 +546,28 @@ export default function App() {
                       <p style={{ fontSize: "14px", color: "#9a8070", margin: 0, lineHeight: "1.6", fontWeight: "300", fontStyle: "italic" }}>{c.theirEdge}</p>
                     </div>
                   ))}
-                  <p style={{ fontSize: "13px", letterSpacing: "0.08em", textTransform: "uppercase", color: "#f2e4ca", margin: "0 0 16px", fontWeight: "600" }}>Industry Trends to Watch</p>
-                  {intel.trends?.map((t, i) => (
-                    <div key={i} style={{ marginBottom: i < intel.trends.length - 1 ? "20px" : 0 }}>
-                      <p style={{ fontSize: "15px", fontWeight: "600", color: "#861442", margin: "0 0 4px" }}>{t.title}</p>
-                      <p style={{ ...BODY, margin: 0 }}>{t.insight}</p>
-                    </div>
-                  ))}
                 </>
               )}
+            </div>
+          )}
+
+          {/* Phase 2: Trends to Watch */}
+          {(intelLoading || intel || intelError) && intel && (
+            <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
+              <p style={SUPERTITLE}>📈 Trends to Watch</p>
+              {intel.trends?.map((t, i) => (
+                <div key={i} style={{ marginBottom: i < intel.trends.length - 1 ? "20px" : 0 }}>
+                  <p style={{ fontSize: "15px", fontWeight: "600", color: "#861442", margin: "0 0 4px" }}>{t.title}</p>
+                  <p style={{ ...BODY, margin: 0 }}>{t.insight}</p>
+                </div>
+              ))}
             </div>
           )}
 
           {/* Phase 2: Revenue Mapping */}
           {(revenueLoading || revenue || revenueError) && (
             <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
-              <p style={SUPERTITLE}>💡 Revenue Mapping</p>
+              <p style={SUPERTITLE}>💡 Three Moves Worth Making</p>
               {revenueLoading && <PulseLoader text="Identifying your highest-leverage moves..." />}
               {revenueError && <p style={{ color: "#c0705a", fontSize: "14px" }}>{revenueError}</p>}
               {revenue && (
@@ -570,10 +575,10 @@ export default function App() {
                   {revenue.moves?.map((m, i) => (
                     <div key={i} style={{ marginBottom: i < revenue.moves.length - 1 ? "24px" : "20px", paddingBottom: i < revenue.moves.length - 1 ? "24px" : 0, borderBottom: i < revenue.moves.length - 1 ? "1px solid #3d2e24" : "none" }}>
                       <p style={{ fontSize: "15px", fontWeight: "600", color: "#f2e4ca", margin: "0 0 6px" }}>
-                        <span style={{ color: "#861442", marginRight: "8px" }}>{i + 1}.</span>{m.title}
+                        {m.title}
                       </p>
                       <p style={{ ...BODY, margin: "0 0 4px" }}>{m.context}</p>
-                      <p style={{ fontSize: "14px", color: "#9a8070", margin: 0, lineHeight: "1.6", fontWeight: "300", fontStyle: "italic" }}>Next step: {m.action}</p>
+                      <p style={{ fontSize: "14px", color: "#9a8070", margin: 0, lineHeight: "1.6", fontWeight: "300" }}>Next Step: {m.action}</p>
                     </div>
                   ))}
                   {revenue.closingLine && (
@@ -597,22 +602,21 @@ export default function App() {
 
           {/* Print Button */}
           {phase2Done && (
-            <div className="no-print" style={{ marginBottom: "32px" }}>
-              <div style={{ background: "#1a120e", border: "1px solid #3d2e24", borderRadius: "6px", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
-                <p style={{ fontSize: "13px", color: "#9a8070", margin: 0, fontStyle: "italic", fontWeight: "300" }}>
-                  ⚠ This report is not saved. Print or save it now before leaving this page.
-                </p>
-                <button onClick={() => window.print()} style={BTN}>
-                  Print / Save Report →
-                </button>
-              </div>
+            <div className="no-print" style={{ ...BOX, marginBottom: "32px" }}>
+              <p style={SUPERTITLE}>🖨️ Print This Report!</p>
+              <p style={{ ...BODY, marginBottom: "24px" }}>
+                This report is not saved. Print it now, before leaving this page, or lose it forever more. (Businesses can only run one report per day.)
+              </p>
+              <button onClick={() => window.print()} style={BTN}>
+                Print / Save Report →
+              </button>
             </div>
           )}
 
           {/* Footer */}
           <div style={{ marginTop: "48px", paddingTop: "28px", borderTop: "1px solid #2a1e18" }}>
             <p style={{ fontSize: "13px", color: "#9a8070", margin: 0, fontWeight: "400" }}>
-              Monica Poling ·{" "}
+              Monica Poling · Knowledge on Tap ·{" "}
               <a href="https://monicapoling.com" target="_blank" rel="noopener noreferrer" style={{ color: "#9a8070", textDecoration: "underline", textUnderlineOffset: "3px" }}>
                 monicapoling.com
               </a>
