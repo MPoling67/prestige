@@ -516,15 +516,15 @@ export default function App() {
             <>
               <div style={BOX}>
                 <p style={SUPERTITLE}>🏆 Industry-Leading Competitors</p>
-                <p style={{ ...BODY, margin: 0 }}>Add your email below to unlock this market intel.</p>
+                <p style={{ ...BODY, margin: 0 }}>Submit your email (below) to unlock information about your industry-leading competitors.</p>
               </div>
               <div style={BOX}>
                 <p style={SUPERTITLE}>📈 Trends to Watch</p>
-                <p style={{ ...BODY, margin: 0 }}>Add your email below to unlock this market intel.</p>
+                <p style={{ ...BODY, margin: 0 }}>Submit your email (below) to get industry trends worth watching.</p>
               </div>
               <div style={BOX}>
                 <p style={SUPERTITLE}>💡 Three Moves Worth Making</p>
-                <p style={{ ...BODY, margin: 0 }}>Add your email below to unlock this market intel.</p>
+                <p style={{ ...BODY, margin: 0 }}>Submit your email (below) to get three moves to help you level up your Prestige Score.</p>
               </div>
             </>
           )}
