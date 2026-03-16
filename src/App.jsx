@@ -511,6 +511,24 @@ export default function App() {
             </div>
           )}
 
+          {/* Phase 2 Teasers — shown before email submit */}
+          {!emailSubmitted && (
+            <>
+              <div style={BOX}>
+                <p style={SUPERTITLE}>🏆 Industry-Leading Competitors</p>
+                <p style={{ ...BODY, margin: 0 }}>Add your email below to unlock this market intel.</p>
+              </div>
+              <div style={BOX}>
+                <p style={SUPERTITLE}>📈 Trends to Watch</p>
+                <p style={{ ...BODY, margin: 0 }}>Add your email below to unlock this market intel.</p>
+              </div>
+              <div style={BOX}>
+                <p style={SUPERTITLE}>💡 Three Moves Worth Making</p>
+                <p style={{ ...BODY, margin: 0 }}>Add your email below to unlock this market intel.</p>
+              </div>
+            </>
+          )}
+
           {/* Email Capture */}
           <div style={BOX} className="no-print">
             <p style={SUPERTITLE}>📩 Want an Expanded Report?</p>
@@ -539,24 +557,6 @@ export default function App() {
               </div>
             )}
           </div>
-
-          {/* Phase 2 Teasers — shown before email submit */}
-          {!emailSubmitted && (
-            <>
-              <div style={BOX}>
-                <p style={SUPERTITLE}>🏆 Industry-Leading Competitors</p>
-                <p style={{ ...BODY, color: "#f2e4ca", fontWeight: "600", margin: 0 }}>Add your email above to unlock this market intel.</p>
-              </div>
-              <div style={BOX}>
-                <p style={SUPERTITLE}>📈 Trends to Watch</p>
-                <p style={{ ...BODY, color: "#f2e4ca", fontWeight: "600", margin: 0 }}>Add your email above to unlock this market intel.</p>
-              </div>
-              <div style={BOX}>
-                <p style={SUPERTITLE}>💡 Three Moves Worth Making</p>
-                <p style={{ ...BODY, color: "#f2e4ca", fontWeight: "600", margin: 0 }}>Add your email above to unlock this market intel.</p>
-              </div>
-            </>
-          )}
 
           {/* Phase 2: Industry-Leading Competitors */}
           {emailSubmitted && (intelLoading || intel || intelError) && (
