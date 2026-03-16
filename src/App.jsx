@@ -304,6 +304,18 @@ export default function App() {
     try {
       const result = await generatePlaybook(url);
       setPlaybook(result);
+      fetch("https://script.google.com/macros/s/AKfycbxtCPP6q6wqCUYlSEtNdyQxFF_22K94lvgP4MJytXYX-kWqpCYkZnXG7tYV5fSZThYj/exec", {
+        method: "POST", mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "report_run",
+          timestamp: new Date().toISOString(),
+          url: url.trim(),
+          score: result.overallScore || "",
+          browser: navigator.userAgent,
+          subscribe: "false"
+        })
+      }).catch(() => {});
       if (!result.fetchSuccess || result.fetchNote) {
         setDebugInfo(
           `Fetch status: ${result.fetchSuccess ? "Success" : "Failed"}\n` +
@@ -329,7 +341,17 @@ export default function App() {
       await fetch("https://script.google.com/macros/s/AKfycbxtCPP6q6wqCUYlSEtNdyQxFF_22K94lvgP4MJytXYX-kWqpCYkZnXG7tYV5fSZThYj/exec", {
         method: "POST", mode: "no-cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName: firstName.trim(), email: email.trim(), website: url.trim(), subscribe: "true" })
+        body: JSON.stringify({
+          event: "email_submit",
+          timestamp: new Date().toISOString(),
+          url: url.trim(),
+          score: playbook?.overallScore || "",
+          browser: navigator.userAgent,
+          firstName: firstName.trim(),
+          email: email.trim(),
+          website: url.trim(),
+          subscribe: "true"
+        })
       });
       setEmailSubmitted(true);
       runPhase2();
