@@ -446,7 +446,13 @@ export default function App() {
             <p style={{ fontSize: "12px", color: "#861442", letterSpacing: "0.1em", margin: 0, textTransform: "uppercase", fontWeight: "500" }}>➜ {playbook.dateGenerated}</p>
           </div>
 
-          {/* Box 1: Score Total */}
+          {/* Box 1: Business Overv iew */}
+          <div style={BOX}>
+            <p style={SUPERTITLE}>📌 About {playbook.businessName}</p>
+            <p style={{ ...BODY, margin: "0 0 20px" }}>{playbook.orgParagraph}</p>
+          </div>
+          
+          {/* Box 2: Score Total */}
           <div style={BOX}>
             <p style={SUPERTITLE}>⚡ Prestige Score</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "14px" }}>
@@ -460,13 +466,6 @@ export default function App() {
             <p style={{ ...BODY, margin: 0 }}>{playbook.scoreParagraph}</p>
           </div>
 
-          {/* Box 2: Score Total */}
-          <div style={BOX}>
-            <p style={SUPERTITLE}>📌 About {playbook.businessName}</p>
-            <p style={{ ...BODY, margin: "0 0 20px" }}>{playbook.orgParagraph}</p>
-          </div>
-
-          
           {/* Box 2: Score Breakdown */}
           <div style={BOX}>
             <p style={{ ...SUPERTITLE, marginBottom: "24px" }}>📊 Score Breakdown</p>
