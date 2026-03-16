@@ -25,7 +25,7 @@ JSON Schema:
   "overallScore": 72,
   "overallDescriptor": "string — one of: Category Leader | Strong Foundation, Underutilized Story | Solid Presence, Clear Gaps | Underdeveloped Positioning | Significant Opportunity",
   "orgParagraph": "2 sentences max, 45 words max. Include the business name, what they do, and one specific genuine thing that makes them worth paying attention to. Warm, like introducing them to a smart friend.",
-  "scoreParagraph": "2 sentences max, 40 words max. Start with a punchy summarizing idea — one clause that captures the essence, not a label. Then: what is genuinely working and what is the primary gap. Specific, warm, no generics.",
+  "scoreParagraph": "2 sentences max, 40 words max. Start with a the company name and a punchy one-liner summarizing idea — one clause that captures the essence, not a label. Then: what is genuinely working and what is the primary gap. Specific, warm, no generics.",
   "prestige": {
     "score": 14,
     "content": "TWO sentences, 40 words max. Warm, observational tone. Is their positioning distinct or generic? For nonprofits/govt/edu: is the mission stated with conviction?"
