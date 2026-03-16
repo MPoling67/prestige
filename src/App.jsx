@@ -290,11 +290,11 @@ export default function App() {
     setEmailSubmitted(false);
 
     const steps = [
-      "Pulling up the site...",
-      "Reading between the lines...",
-      "Evaluating your P-O-W-E-R...",
-      "Sizing up the landscape...",
-      "Writing your Prestige Score Report..."
+      "Pulling up your site...",
+      "Wow! This is great stuff ...",
+      "Evaluating your P-O-W-E-R ...",
+      "Personality, deconstructed ...",
+      "Calculating your Prestige Score ..."
     ];
     let i = 0;
     setProgress(steps[0]);
@@ -452,7 +452,7 @@ export default function App() {
             <p style={{ ...BODY, margin: "0 0 20px" }}>{playbook.orgParagraph}</p>
           </div>
           
-          {/* Box 2: Score Total */}
+          {/* Box 2:  Total Score */}
           <div style={BOX}>
             <p style={SUPERTITLE}>⚡ Your Prestige Score</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "14px" }}>
@@ -462,13 +462,17 @@ export default function App() {
             <div style={{ background: "#f2e4ca", borderRadius: "2px", height: "3px", marginBottom: "20px", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${playbook.overallScore}%`, background: "#861442", borderRadius: "2px", animation: "scoreBar 1.2s ease forwards" }} />
             </div>
+          </div>
+
+          {/* Box 3: Score Overview */}
+          <div style={BOX}>
             <p style={SUPERTITLE}>⭐ About Your Score</p>
             <p style={{ ...BODY, margin: 0 }}>{playbook.scoreParagraph}</p>
           </div>
 
-          {/* Box 2: Score Breakdown */}
+          {/* Box 4: Power  Breakdown */}
           <div style={BOX}>
-            <p style={{ ...SUPERTITLE, marginBottom: "24px" }}>📊 Score Breakdown</p>
+            <p style={{ ...SUPERTITLE, marginBottom: "24px" }}>📊 Power Score Breakdown</p>
             {POWER_SECTIONS.map(({ key, letter, label, subtitle }, idx) => {
               const section = playbook[key];
               if (!section) return null;
