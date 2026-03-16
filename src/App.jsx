@@ -76,8 +76,7 @@ JSON Schema:
   "trends": [
     {
       "title": "Trend name, 5 words max",
-      "insight": "2 sentences max, 40 words max. What is happening and why it matters specifically for this business."
-    }
+      "insight": "2 sentences max, 40 words max. What is happening and why it matters — and tie it directly to something specific found in their Prestige Score Report (a gap, a strength, or a score)."}
   ]
 }
 
@@ -581,10 +580,12 @@ export default function App() {
           )}
 
           {/* Phase 2: Trends to Watch */}
-          {emailSubmitted && intel && (
+          {emailSubmitted && (intelLoading || intel || intelError) && (
             <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
               <p style={SUPERTITLE}>📈 Trends to Watch</p>
-              {intel.trends?.map((t, i) => (
+              {intelLoading && <PulseLoader text="Searching for trends..." />}
+              {intelError && <p style={{ color: "#c0705a", fontSize: "14px" }}>{intelError}</p>}
+              {intel && intel.trends?.map((t, i) => (
                 <div key={i} style={{ marginBottom: i < intel.trends.length - 1 ? "20px" : 0 }}>
                   <p style={{ fontSize: "15px", fontWeight: "600", color: "#861442", margin: "0 0 4px" }}>{t.title}</p>
                   <p style={{ ...BODY, margin: 0 }}>{t.insight}</p>
@@ -593,7 +594,7 @@ export default function App() {
             </div>
           )}
 
-          {/* Phase 2: Revenue Mapping */}
+          {/* Phase 2: Three Moves Worth Making */}
           {emailSubmitted && (revenueLoading || revenue || revenueError) && (
             <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
               <p style={SUPERTITLE}>💡 Three Moves Worth Making</p>
@@ -604,7 +605,7 @@ export default function App() {
                   {revenue.moves?.map((m, i) => (
                     <div key={i} style={{ marginBottom: i < revenue.moves.length - 1 ? "24px" : "20px", paddingBottom: i < revenue.moves.length - 1 ? "24px" : 0, borderBottom: i < revenue.moves.length - 1 ? "1px solid #3d2e24" : "none" }}>
                       <p style={{ fontSize: "15px", fontWeight: "600", color: "#f2e4ca", margin: "0 0 6px" }}>
-                        {m.title}
+                        <span style={{ color: "#861442" }}>Move {i + 1}:</span> {m.title}
                       </p>
                       <p style={{ ...BODY, margin: "0 0 4px" }}>{m.context}</p>
                       <p style={{ fontSize: "14px", color: "#9a8070", margin: 0, lineHeight: "1.6", fontWeight: "300" }}>Next Step: {m.action}</p>
