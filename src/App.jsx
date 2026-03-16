@@ -540,8 +540,26 @@ export default function App() {
             )}
           </div>
 
+          {/* Phase 2 Teasers — shown before email submit */}
+          {!emailSubmitted && (
+            <>
+              <div style={BOX}>
+                <p style={SUPERTITLE}>🏆 Industry-Leading Competitors</p>
+                <p style={{ ...BODY, color: "#f2e4ca", fontWeight: "600", margin: 0 }}>Add your email above to unlock this market intel.</p>
+              </div>
+              <div style={BOX}>
+                <p style={SUPERTITLE}>📈 Trends to Watch</p>
+                <p style={{ ...BODY, color: "#f2e4ca", fontWeight: "600", margin: 0 }}>Add your email above to unlock this market intel.</p>
+              </div>
+              <div style={BOX}>
+                <p style={SUPERTITLE}>💡 Three Moves Worth Making</p>
+                <p style={{ ...BODY, color: "#f2e4ca", fontWeight: "600", margin: 0 }}>Add your email above to unlock this market intel.</p>
+              </div>
+            </>
+          )}
+
           {/* Phase 2: Industry-Leading Competitors */}
-          {(intelLoading || intel || intelError) && (
+          {emailSubmitted && (intelLoading || intel || intelError) && (
             <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
               <p style={SUPERTITLE}>🏆 Industry-Leading Competitors</p>
               {intelLoading && <PulseLoader text="Searching for competitors and trends..." />}
@@ -563,7 +581,7 @@ export default function App() {
           )}
 
           {/* Phase 2: Trends to Watch */}
-          {(intelLoading || intel || intelError) && intel && (
+          {emailSubmitted && intel && (
             <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
               <p style={SUPERTITLE}>📈 Trends to Watch</p>
               {intel.trends?.map((t, i) => (
@@ -576,7 +594,7 @@ export default function App() {
           )}
 
           {/* Phase 2: Revenue Mapping */}
-          {(revenueLoading || revenue || revenueError) && (
+          {emailSubmitted && (revenueLoading || revenue || revenueError) && (
             <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
               <p style={SUPERTITLE}>💡 Three Moves Worth Making</p>
               {revenueLoading && <PulseLoader text="Identifying your highest-leverage moves..." />}
