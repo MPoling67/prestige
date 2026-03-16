@@ -531,9 +531,9 @@ export default function App() {
 
           {/* Email Capture */}
           <div style={BOX} className="no-print">
-            <p style={SUPERTITLE}>📩 Want an Expanded Report?</p>
+            <p style={SUPERTITLE}>📩 Get More Intel</p>
             <p style={{ ...BODY, marginBottom: "24px" }}>
-              Want a deeper dive? Enter your first name and email to see your top competitors and top industry trends.
+               See who’s winning your category and what trends they’re riding. Drop your email to unlock your competitor and trend intel.
             </p>
             {emailSubmitted ? (
               <p style={{ fontSize: "15px", color: "#4a9a6a", fontWeight: "500" }}>✓ Unlocking your expanded report below...</p>
