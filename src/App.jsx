@@ -324,7 +324,7 @@ export default function App() {
         );
       }
     } catch (e) {
-      setError("Something went wrong generating your Prestige Score Report. Check the URL and try again.");
+      setError("Ooops look like AI gremlins are up to no good. Please sumit your URL and try again.");
       setDebugInfo(e.message);
     } finally {
       clearInterval(interval);
