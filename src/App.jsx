@@ -62,21 +62,23 @@ Below 45: Significant Opportunity`;
 const INTEL_SYSTEM_PROMPT = `You are a strategic market analyst. You will be given a Prestige Score Report JSON for a business. Use web search to find current competitive intelligence.
 
 Return ONLY valid JSON. No markdown, no preamble, no backticks. Clean JSON only.
+All content fields must address the business in second person ("your positioning," "your website," "your story") rather than third person.
 
 JSON Schema:
 {
   "competitors": [
     {
       "name": "Competitor name",
-      "url": "https://...",
       "whatTheyDo": "One sentence: what they do and who they serve.",
-      "theirEdge": "One sentence: what they are doing well or differently that is worth paying attention to."
+      "whyTheyreWinning": "One sentence: what they are doing well or differently that is worth paying attention to."
     }
   ],
   "trends": [
     {
-      "title": "Trend name, 5 words max",
-      "insight": "2 sentences max, 40 words max. What is happening and why it matters — and tie it directly to something specific found in their Prestige Score Report (a gap, a strength, or a score)."}
+      "title": "Trend name, 7 words max",
+      "insight": "1-2 sentences, 45 words max. What is happening and why it matters right now.",
+      "relevance": "1 sentence, 30 words max. Tie this directly to something specific found in the Prestige Score Report — a gap, a strength, or a score — using second person."
+    }
   ]
 }
 
@@ -567,11 +569,9 @@ export default function App() {
                 <>
                   {intel.competitors?.map((c, i) => (
                     <div key={i} style={{ marginBottom: i < intel.competitors.length - 1 ? "20px" : 0, paddingBottom: i < intel.competitors.length - 1 ? "20px" : 0, borderBottom: i < intel.competitors.length - 1 ? "1px solid #3d2e24" : "none" }}>
-                      <p style={{ fontSize: "15px", fontWeight: "600", color: "#f2e4ca", margin: "0 0 4px" }}>
-                        {c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer" style={{ color: "#861442", textDecoration: "none" }}>{c.name} →</a> : c.name}
-                      </p>
-                      <p style={{ ...BODY, margin: "0 0 4px" }}>{c.whatTheyDo}</p>
-                      <p style={{ fontSize: "14px", color: "#9a8070", margin: 0, lineHeight: "1.6", fontWeight: "300", fontStyle: "italic" }}>{c.theirEdge}</p>
+                      <p style={{ fontSize: "15px", fontWeight: "600", color: "#f2e4ca", margin: "0 0 4px" }}>{c.name}</p>
+                      <p style={{ ...BODY, margin: "0 0 8px" }}>{c.whatTheyDo}</p>
+                      <p style={{ ...BODY, margin: "0 0 4px" }}><span style={{ color: "#861442", fontWeight: "600" }}>Why They're Winning</span> · {c.whyTheyreWinning}</p>
                     </div>
                   ))}
                 </>
@@ -588,7 +588,8 @@ export default function App() {
               {intel && intel.trends?.map((t, i) => (
                 <div key={i} style={{ marginBottom: i < intel.trends.length - 1 ? "20px" : 0 }}>
                   <p style={{ fontSize: "15px", fontWeight: "600", color: "#861442", margin: "0 0 4px" }}>{t.title}</p>
-                  <p style={{ ...BODY, margin: 0 }}>{t.insight}</p>
+                  <p style={{ ...BODY, margin: "0 0 8px" }}>{t.insight}</p>
+                  <p style={{ ...BODY, margin: 0 }}><span style={{ color: "#861442", fontWeight: "600" }}>How This Relates</span> · {t.relevance}</p>
                 </div>
               ))}
             </div>
@@ -604,11 +605,9 @@ export default function App() {
                 <>
                   {revenue.moves?.map((m, i) => (
                     <div key={i} style={{ marginBottom: i < revenue.moves.length - 1 ? "24px" : "20px", paddingBottom: i < revenue.moves.length - 1 ? "24px" : 0, borderBottom: i < revenue.moves.length - 1 ? "1px solid #3d2e24" : "none" }}>
-                      <p style={{ fontSize: "15px", fontWeight: "600", color: "#f2e4ca", margin: "0 0 6px" }}>
-                        <span style={{ color: "#861442" }}>Move {i + 1}:</span> {m.title}
-                      </p>
-                      <p style={{ ...BODY, margin: "0 0 4px" }}>{m.context}</p>
-                      <p style={{ fontSize: "14px", color: "#9a8070", margin: 0, lineHeight: "1.6", fontWeight: "300" }}>Next Step: {m.action}</p>
+                      <p style={{ fontSize: "15px", fontWeight: "600", color: "#861442", margin: "0 0 6px" }}>Move {i + 1}: {m.title}</p>
+                      <p style={{ ...BODY, margin: "0 0 8px" }}>{m.context}</p>
+                      <p style={{ ...BODY, margin: 0 }}><span style={{ color: "#861442", fontWeight: "600" }}>Next Step</span> · {m.action}</p>
                     </div>
                   ))}
                   {revenue.closingLine && (
