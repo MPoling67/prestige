@@ -454,7 +454,7 @@ export default function App() {
           
           {/* Box 2: Score Total */}
           <div style={BOX}>
-            <p style={SUPERTITLE}>⚡ Prestige Score</p>
+            <p style={SUPERTITLE}>⚡ Your Prestige Score</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "14px" }}>
               <span style={{ fontSize: "72px", fontWeight: "300", lineHeight: "1", color: overallColor, letterSpacing: "-0.04em", fontFamily: "'Georgia', serif" }}>{playbook.overallScore}</span>
               <span style={{ fontSize: "22px", color: "#f2e4ca", paddingBottom: "6px", fontWeight: "600" }}>/100</span>
