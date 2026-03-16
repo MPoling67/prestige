@@ -456,7 +456,7 @@ export default function App() {
             <div style={{ background: "#f2e4ca", borderRadius: "2px", height: "3px", marginBottom: "20px", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${playbook.overallScore}%`, background: "#861442", borderRadius: "2px", animation: "scoreBar 1.2s ease forwards" }} />
             </div>
-            <p style={{ fontSize: "13px", letterSpacing: "0.08em", textTransform: "uppercase", color: "#f2e4ca", margin: "0 0 8px", fontWeight: "600" }}>⭐ About Your Score</p>
+            <p style={SUPERTITLE}>⭐ About Your Score</p>
             <p style={{ ...BODY, margin: 0 }}>{playbook.scoreParagraph}</p>
           </div>
 
