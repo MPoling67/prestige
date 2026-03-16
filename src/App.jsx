@@ -7,6 +7,7 @@ Use the web_search tool to fetch and read the content at the provided URL before
 2. Add or remove "www."
 3. Try the root domain if a subpage was given
 Do NOT rely on LLM memory. Only use what you find by actually visiting the URL.
+All content fields should address the business in second person ("your positioning," "your website," "your story") rather than third person.
 
 Return ONLY valid JSON. No markdown, no preamble, no backticks, no citation tags, no XML markup, no annotation syntax of any kind. Clean JSON only.
 
@@ -383,9 +384,9 @@ export default function App() {
 
       {/* Header */}
       <div className="no-print" style={{ borderBottom: "1px solid #3d2e24", padding: "32px 40px 28px", display: "flex", alignItems: "baseline", gap: "12px" }}>
-        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#f9ebea", fontWeight: "500" }}>Monica Poling</span>
-        <span style={{ color: "#5a3a2a", fontSize: "10px" }}>✦</span>
-        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#6a5040", fontWeight: "400" }}>Prestige Score Report</span>
+        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#861442", fontWeight: "700" }}>The Prestige Score</span>
+        <span style={{ color: "#f2e4ca", fontSize: "10px", fontWeight: "700" }}>✦</span>
+        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#f2e4ca", fontWeight: "700" }}>Knowledge on Tap</span>
       </div>
 
       {/* Hero / Input */}
@@ -395,7 +396,9 @@ export default function App() {
           Prestige Score
         </h1>
         <p style={{ fontSize: "17px", lineHeight: "1.75", color: "#f2e4ca", maxWidth: "560px", margin: "0 0 52px", fontWeight: "300" }}>
-          Great businesses often get overlooked because they're trained to do excellent work, not to showcase their work strategically. Do you own your category story? Unlock your Prestige Score now.
+          Great businesses often get overlooked because they're trained to do excellent work, but they don't know how to showcase their work strategically. Learn what's working and what isn't.
+          <br /><br />
+          Unlock your Prestige Score now.
         </p>
         <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", maxWidth: "680px" }}>
           <input
@@ -453,12 +456,18 @@ export default function App() {
             <div style={{ background: "#f2e4ca", borderRadius: "2px", height: "3px", marginBottom: "20px", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${playbook.overallScore}%`, background: "#861442", borderRadius: "2px", animation: "scoreBar 1.2s ease forwards" }} />
             </div>
-            <p style={{ fontSize: "13px", letterSpacing: "0.08em", textTransform: "uppercase", color: "#f2e4ca", margin: "0 0 8px", fontWeight: "600" }}>About {playbook.businessName}</p>
-            <p style={{ ...BODY, margin: "0 0 20px" }}>{playbook.orgParagraph}</p>
             <p style={{ fontSize: "13px", letterSpacing: "0.08em", textTransform: "uppercase", color: "#f2e4ca", margin: "0 0 8px", fontWeight: "600" }}>About Your Score</p>
             <p style={{ ...BODY, margin: 0 }}>{playbook.scoreParagraph}</p>
           </div>
 
+          {/* Box 2: Score Total */}
+          <div style={BOX}>
+            <p style={SUPERTITLE}>⚡ About</p>
+            <p style={{ fontSize: "13px", letterSpacing: "0.08em", textTransform: "uppercase", color: "#f2e4ca", margin: "0 0 8px", fontWeight: "600" }}>About {playbook.businessName}</p>
+            <p style={{ ...BODY, margin: "0 0 20px" }}>{playbook.orgParagraph}</p>
+          </div>
+
+          
           {/* Box 2: Score Breakdown */}
           <div style={BOX}>
             <p style={{ ...SUPERTITLE, marginBottom: "24px" }}>📊 Score Breakdown</p>
