@@ -88,7 +88,7 @@ Rules:
 - Be specific. No generic trends like "digital transformation" unless you can tie it directly to something real.
 - Warm, direct tone. Like a smart advisor who did the research.`;
 
-const REVENUE_SYSTEM_PROMPT = `You are a strategic revenue advisor. You will be given a Prestige Score Report JSON for a business. Based only on what the report reveals — the scores, the gaps, the brand personality — identify three high-leverage revenue moves for this business.
+const REVENUE_SYSTEM_PROMPT = `You are a strategic revenue advisor. You will be given a POWER Score JSON for a business. Based only on what the report reveals — the scores, the gaps, the brand personality — identify three high-leverage revenue moves for this business.
 
 Return ONLY valid JSON. No markdown, no preamble, no backticks. Clean JSON only.
 
@@ -186,7 +186,7 @@ async function generateRevenue(playbookData) {
       system: REVENUE_SYSTEM_PROMPT,
       messages: [{
         role: "user",
-        content: `Here is the Prestige Score Report:\n\n${JSON.stringify(playbookData, null, 2)}\n\nIdentify the three highest-leverage revenue moves for this business. Return the JSON.`
+        content: `Here is your POWER Score:\n\n${JSON.stringify(playbookData, null, 2)}\n\nIdentify the three highest-leverage revenue moves for this business. Return the JSON.`
       }]
     })
   });
@@ -295,7 +295,8 @@ export default function App() {
       "Wow! This is great stuff ...",
       "Evaluating your P-O-W-E-R ...",
       "Personality, deconstructed ...",
-      "Calculating your Prestige Score ..."
+      "Love what you're doing ...",
+      "Calculating your POWER Score ..."
     ];
     let i = 0;
     setProgress(steps[0]);
@@ -407,7 +408,7 @@ export default function App() {
 
       {/* Header */}
       <div className="no-print" style={{ borderBottom: "1px solid #3d2e24", padding: "32px 40px 28px", display: "flex", alignItems: "baseline", gap: "12px" }}>
-        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#861442", fontWeight: "700" }}>The Prestige Score</span>
+        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#861442", fontWeight: "700" }}>The POWER Score</span>
         <span style={{ color: "#f2e4ca", fontSize: "10px", fontWeight: "700" }}>✦</span>
         <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#f2e4ca", fontWeight: "700" }}>Knowledge on Tap</span>
       </div>
@@ -421,7 +422,7 @@ export default function App() {
         <p style={{ fontSize: "17px", lineHeight: "1.75", color: "#f2e4ca", maxWidth: "560px", margin: "0 0 52px", fontWeight: "300" }}>
           Great businesses often get overlooked because they're trained to do excellent work, but they don't know how to showcase their work strategically. Learn what's working and what isn't.
           <br /><br />
-          Unlock your Prestige Score now.
+          Unlock your POWER Score now.
         </p>
         <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", maxWidth: "680px" }}>
           <input
@@ -477,7 +478,7 @@ export default function App() {
           
           {/* Box 2:  Total Score */}
           <div style={BOX}>
-            <p style={SUPERTITLE}>⚡ Your Prestige Score</p>
+            <p style={SUPERTITLE}>⚡ Your POWER Score</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "14px" }}>
               <span style={{ fontSize: "72px", fontWeight: "300", lineHeight: "1", color: overallColor, letterSpacing: "-0.04em", fontFamily: "'Georgia', serif" }}>{playbook.overallScore}</span>
               <span style={{ fontSize: "22px", color: "#f2e4ca", paddingBottom: "6px", fontWeight: "600" }}>/100</span>
