@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const PRESTIGE_SYSTEM_PROMPT = `You are a strategic business analyst creating a Prestige Score Report. Your tone is warm, direct, and expert — like a trusted advisor who has done their homework. Avoid jargon like "pipeline," "scale," "leverage," or "synergy." The report should feel written specifically for this organization — not AI generated.
+const POWER_SYSTEM_PROMPT = `You are a strategic business analyst creating a POWER Score Report. Your tone is warm, direct, and expert — like a trusted advisor who has done their homework. Avoid jargon like "pipeline," "scale," "leverage," or "synergy." The report should feel written specifically for this organization — not AI generated.
 
 Use the web_search tool to fetch and read the content at the provided URL before generating any output. If the first fetch fails or returns no useful content, try these variations in order:
 1. Add or remove a trailing slash
@@ -59,7 +59,7 @@ For overallScore: sum the five P-O-W-E-R scores (each out of 20, total out of 10
 45-59: Underdeveloped Positioning
 Below 45: Significant Opportunity`;
 
-const INTEL_SYSTEM_PROMPT = `You are a strategic market analyst. You will be given a Prestige Score Report JSON for a business. Use web search to find current competitive intelligence.
+const INTEL_SYSTEM_PROMPT = `You are a strategic market analyst. You will be given a POWER Score JSON for a business. Use web search to find current competitive intelligence.
 
 Return ONLY valid JSON. No markdown, no preamble, no backticks. Clean JSON only.
 All content fields must address the business in second person ("your positioning," "your website," "your story") rather than third person.
@@ -106,7 +106,7 @@ JSON Schema:
 
 Rules:
 - Exactly 3 moves, in priority order.
-- Each move must be grounded in something specific from the Prestige Score Report — a gap, a strength, a score.
+- Each move must be grounded in something specific from the POWER Score — a gap, a strength, a score.
 - No generic advice. If you can't tie it to the report, don't include it.
 - Tone: trusted advisor in the room, not a consultant's slide deck.`;
 
@@ -127,10 +127,10 @@ async function generatePlaybook(rawUrl) {
       model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       tools: [{ type: "web_search_20250305", name: "web_search" }],
-      system: PRESTIGE_SYSTEM_PROMPT,
+      system: POWER_SYSTEM_PROMPT,
       messages: [{
         role: "user",
-        content: `Generate a Prestige Score Report for this organization. Start by fetching: ${url}
+        content: `Generate a POWER Score for this organization. Start by fetching: ${url}
 
 If that fetch fails or returns no meaningful content, try these in order:
 - ${url}/
@@ -139,7 +139,7 @@ If that fetch fails or returns no meaningful content, try these in order:
 
 Record all URLs you attempted in the urlsAttempted field. Set fetchSuccess to false and explain in fetchNote if you were unable to retrieve useful content from any variation.
 
-Then generate the full Prestige Score Report JSON.`
+Then generate the full POWER Score JSON.`
       }]
     })
   });
@@ -163,7 +163,7 @@ async function generateIntel(playbookData) {
       system: INTEL_SYSTEM_PROMPT,
       messages: [{
         role: "user",
-        content: `Here is the Prestige Score Report for this business:\n\n${JSON.stringify(playbookData, null, 2)}\n\nNow search the web to find their top 2 competitors and 3 relevant industry trends. Return the JSON.`
+        content: `Here is the POWER Score for this business:\n\n${JSON.stringify(playbookData, null, 2)}\n\nNow search the web to find their top 2 competitors and 3 relevant industry trends. Return the JSON.`
       }]
     })
   });
