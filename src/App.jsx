@@ -77,7 +77,7 @@ JSON Schema:
     {
       "title": "Trend name, 7 words max",
       "insight": "1-2 sentences, 45 words max. What is happening and why it matters right now.",
-      "relevance": "1 sentence, 30 words max. Tie this directly to something specific found in the Prestige Score Report — a gap, a strength, or a score — using second person."
+      "relevance": "1 sentence, 30 words max. Tie this directly to something specific found in the POWER Score — a gap, a strength, or a score — using second person."
     }
   ]
 }
@@ -417,7 +417,7 @@ export default function App() {
       <div className="no-print" style={{ padding: "80px 40px 64px", maxWidth: "780px", margin: "0 auto" }}>
         <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#f2e4ca", marginBottom: "48px", fontWeight: "600" }}>Market Intelligence</p>
         <h1 style={{ fontSize: "clamp(32px, 5vw, 54px)", fontWeight: "700", lineHeight: "1.05", margin: "0 0 24px", color: "#861442", letterSpacing: "-0.03em", fontFamily: "'Poppins', sans-serif" }}>
-          Prestige Score
+          POWER Score
         </h1>
         <p style={{ fontSize: "17px", lineHeight: "1.75", color: "#f2e4ca", maxWidth: "560px", margin: "0 0 52px", fontWeight: "300" }}>
           Great businesses often get overlooked because they're trained to do excellent work, but they don't know how to showcase their work strategically. Learn what's working and what isn't.
