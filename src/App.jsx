@@ -255,8 +255,9 @@ export default function App() {
     setRevenueLoading(false);
   };
 
-  return (
-    <div style={{ minHeight: "100vh", background: "#f4f3ef", color: "#1a1a18" }}>
+return (
+  <div style={{ minHeight: "100vh", background: "#f4f3ef", color: "#1a1a18" }}>
+    <div style={{ maxWidth: 860, margin: "0 auto" }}>
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
