@@ -2,11 +2,14 @@ import { useState } from "react";
 
 const POWER_SYSTEM_PROMPT = `You are a strategic business analyst creating a POWER Score Report. Your tone is warm, direct, and expert — like a trusted advisor who has done their homework. Avoid jargon like "pipeline," "scale," "leverage," or "synergy." The report should feel written specifically for this organization — not AI generated.
 
-Use the web_search tool to fetch and read the content at the provided URL before generating any output. If the first fetch fails or returns no useful content, try these variations in order:
-1. Add or remove a trailing slash
-2. Add or remove "www."
-3. Try the root domain if a subpage was given
-Do NOT rely on LLM memory. Only use what you find by actually visiting the URL.
+CRITICAL — YOU MUST ACTUALLY FETCH THE WEBSITE:
+Step 1: Use the web_fetch tool to retrieve the exact URL provided. Read the actual page content.
+Step 2: If web_fetch returns an error or empty content, try these variations in order:
+  - Add or remove a trailing slash
+  - Add or remove "www."
+  - Try the root domain if a subpage was given
+Step 3: Only after fetching real content, generate the report based ONLY on what you read.
+DO NOT rely on LLM training memory about this organization. If you cannot fetch the page, say so in fetchNote and score conservatively.
 All content fields should address the business in second person ("your positioning," "your website," "your story") rather than third person.
 
 Return ONLY valid JSON. No markdown, no preamble, no backticks, no citation tags, no XML markup, no annotation syntax of any kind. Clean JSON only.
@@ -19,22 +22,22 @@ JSON Schema:
   "businessName": "string",
   "dateGenerated": "Month YYYY",
   "overallScore": 72,
-  "overallDescriptor": "Category Leader | Strong Foundation, Underutilized Story | Solid Presence, Clear Gaps | Underdeveloped Positioning | Significant Opportunity",
-  "orgParagraph": "2 sentences max, 45 words max. Business name, what they do, one specific genuine thing worth paying attention to. Warm, like introducing them to a smart friend.",
-  "scoreParagraph": "2 sentences max, 40 words max. Punchy one-liner capturing the essence, then what's working and the primary gap. Specific, warm, no generics.",
-  "prestige":    { "score": 14, "content": "TWO sentences, 40 words max. Warm, observational." },
-  "origin":      { "score": 12, "content": "TWO sentences, 40 words max. Warm, observational." },
-  "wow":         { "score": 16, "content": "TWO sentences, 40 words max. Warm, observational." },
-  "expertise":   { "score": 10, "content": "TWO sentences, 40 words max. Warm, observational." },
-  "reputation":  { "score": 8,  "content": "TWO sentences, 40 words max. Warm, observational." },
-  "brandPersonality": "2 sentences max, 35 words max. Start with business name. Personality projected, then the friction.",
+  "overallDescriptor": "Category Leader | Strong Foundation, Underloaded Story | Solid Presence, Clear Gaps | Underdeveloped Positioning | Significant Opportunity",
+  "orgParagraph": "2-3 sentences, 60 words max. Business name, what they do, one specific genuine thing worth paying attention to. Warm, like introducing them to a smart friend. Based ONLY on fetched content.",
+  "scoreParagraph": "2-3 sentences, 60 words max. Punchy one-liner capturing the essence, then what's working and the primary gap. Specific, warm, no generics. Based ONLY on fetched content.",
+  "prestige":    { "score": 14, "content": "2-3 sentences, 65 words max. Warm, observational. Reference specific things found on the actual website." },
+  "origin":      { "score": 12, "content": "2-3 sentences, 65 words max. Warm, observational. Reference specific things found on the actual website." },
+  "wow":         { "score": 16, "content": "2-3 sentences, 65 words max. Warm, observational. Reference specific things found on the actual website." },
+  "expertise":   { "score": 10, "content": "2-3 sentences, 65 words max. Warm, observational. Reference specific things found on the actual website." },
+  "reputation":  { "score": 8,  "content": "2-3 sentences, 65 words max. Warm, observational. Reference specific things found on the actual website." },
+  "brandPersonality": "2-3 sentences, 60 words max. Start with business name. Personality projected, then the friction. Based ONLY on fetched content.",
   "urlsAttempted": ["https://example.com"],
   "fetchSuccess": true,
-  "fetchNote": "Optional — only if fetch issues."
+  "fetchNote": "Optional — only if fetch issues or if content was sparse."
 }
 
 overallScore = sum of five scores (each /20, total /100).
-90-100: Category Leader | 75-89: Strong Foundation, Underutilized Story | 60-74: Solid Presence, Clear Gaps | 45-59: Underdeveloped Positioning | Below 45: Significant Opportunity`;
+90-100: Category Leader | 75-89: Strong Foundation, Underloaded Story | 60-74: Solid Presence, Clear Gaps | 45-59: Underdeveloped Positioning | Below 45: Significant Opportunity`;
 
 const INTEL_SYSTEM_PROMPT = `You are a strategic market analyst. Given a POWER Score JSON, use web search to find current competitive intelligence.
 Return ONLY valid JSON. No markdown, no preamble, no backticks. All content in second person.
@@ -57,7 +60,7 @@ function normalizeUrl(input) {
 }
 
 async function callAPI(system, messages, useSearch = false) {
-  const body = { model: "claude-sonnet-4-20250514", max_tokens: 2000, system, messages };
+  const body = { model: "claude-sonnet-4-20250514", max_tokens: 3000, system, messages };
   if (useSearch) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
   const r = await fetch("/api/anthropic", {
     method: "POST",
@@ -76,7 +79,17 @@ async function generatePlaybook(rawUrl) {
   const url = normalizeUrl(rawUrl);
   return callAPI(POWER_SYSTEM_PROMPT, [{
     role: "user",
-    content: `Generate a POWER Score for this organization. Fetch: ${url}\n\nIf that fails try:\n- ${url}/\n- ${url.replace(/^https:\/\//, "https://www.")}\n- ${url.replace(/^https:\/\/www\./, "https://")}\n\nRecord all URLs attempted. Return the full JSON.`
+    content: `You MUST use web_search to fetch and read the live website before scoring. Search for the exact URL: ${url}
+
+Do not use anything from memory. Only score based on content you actually retrieve right now.
+
+Try in order if needed:
+1. ${url}
+2. ${url}/
+3. ${url.replace(/^https:\/\//, "https://www.")}
+4. ${url.replace(/^https:\/\/www\./, "https://")}
+
+Record every URL attempted in urlsAttempted. If you cannot retrieve real content, set fetchSuccess to false and explain in fetchNote. Return the full JSON.`
   }], true);
 }
 
@@ -489,7 +502,7 @@ export default function App() {
               <div className="card kot-anim no-print" style={{ animationDelay: "0.4s" }}>
                 <p className="card-label">Unlock More Intel</p>
                 <p className="card-body" style={{ marginBottom: 16 }}>
-                  Want to see your top competitors and industry trends to watch? Drop your email to unlock.
+                  Want to see your top competitors and industry trends? Drop your email to unlock.
                 </p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
                   {["Industry-leading competitors", "Trends to watch", "Three revenue moves worth making"].map((item) => (
@@ -502,21 +515,22 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
                   <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}
                     placeholder="First name" className="kot-field" style={{ flex: 1, minWidth: 140 }} />
                   <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleEmailSubmit()}
                     placeholder="Email address" className="kot-field" style={{ flex: 2, minWidth: 200 }} />
                 </div>
-                <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, color: "#8a8a84", marginBottom: 16 }}>
-                  By submitting, you agree to receive the Let's Make Some Noise newsletter.
-                </p>
                 {emailError && <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#c0705a", marginBottom: 10 }}>{emailError}</p>}
                 <button className="btn-primary" onClick={handleEmailSubmit}
-                  disabled={emailSubmitting || !email.trim() || !firstName.trim()}>
-                  {emailSubmitting ? "Sending..." : "Give me more details →"}
+                  disabled={emailSubmitting || !email.trim() || !firstName.trim()}
+                  style={{ marginBottom: 12 }}>
+                  {emailSubmitting ? "Sending..." : "Give me more intel →"}
                 </button>
+                <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 11, color: "#5a5a56", lineHeight: 1.6 }}>
+                  By submitting, you understand you'll be subscribed to the Let's Make Some Noise newsletter. You may unsubscribe any time.
+                </p>
               </div>
             )}
 
@@ -547,7 +561,7 @@ export default function App() {
                 {intelLoading && <PulseLoader text="Pulling industry trends..." />}
                 {intel?.trends?.map((t, i) => (
                   <div key={i} className="intel-row">
-                    <p className="intel-name" style={{ color: "#861442" }}>{t.title}</p>
+                    <p className="intel-name" style={{ color: "#be3650" }}>{t.title}</p>
                     <p className="intel-body">{t.insight}</p>
                     <p className="intel-body"><span className="intel-accent">How this relates</span>{t.relevance}</p>
                   </div>
