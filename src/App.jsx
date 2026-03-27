@@ -255,9 +255,9 @@ export default function App() {
     setRevenueLoading(false);
   };
 
-return (
-  <div style={{ minHeight: "100vh", background: "#f4f3ef", color: "#1a1a18" }}>
-    <div style={{ maxWidth: 860, margin: "0 auto" }}>
+  return (
+    <div style={{ minHeight: "100vh", background: "#f4f3ef", color: "#1a1a18" }}>
+
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -298,7 +298,7 @@ return (
         .btn-ghost { background:transparent; color:var(--text); border:1px solid var(--border2); font-family:var(--font-body); font-size:13px; padding:10px 18px; border-radius:var(--radius); cursor:pointer; transition:color 0.15s,border-color 0.15s; }
         .btn-ghost:hover { color:#861442; border-color:#861442; }
 
-        .kot-report-zone { background:var(--bg); max-width:820px; margin:0 auto; padding:0 clamp(16px,4vw,2rem) 80px; }
+        .kot-report-zone { background:var(--bg); padding:0 clamp(16px,4vw,2rem) 80px; }
         .kot-report-head { padding:36px 0 24px; border-bottom:1px solid var(--border); }
         .kot-report-name { font-family:var(--font-display); font-weight:300; font-size:clamp(22px,4vw,36px); letter-spacing:-0.02em; color:var(--text); margin-bottom:6px; line-height:1.1; }
         .kot-report-date { font-family:var(--font-body); font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:#be3650; }
@@ -357,35 +357,37 @@ return (
         }
       `}</style>
 
-      {/* Tier 1 */}
-      <div className="kot-tier1 no-print">
-        <span className="kot-tier1-label">Knowledge on Tap</span>
-      </div>
+      {/* ── Constrained wrapper — everything inside this ── */}
+      <div style={{ maxWidth: 860, margin: "0 auto", overflow: "hidden" }}>
 
-      {/* Hero */}
-      <div className="kot-hero no-print">
-        <div className="kot-hero-left">
-          <span className="kot-hero-power">POWER</span>
-          <span className="kot-hero-score">Score</span>
+        {/* Tier 1 */}
+        <div className="kot-tier1 no-print">
+          <span className="kot-tier1-label">Knowledge on Tap</span>
         </div>
-        <div className="kot-hero-right">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
-            style={{ position: "absolute", top: "1.25rem", right: "1.25rem", opacity: 0.25 }}>
-            <rect x="0" y="0" width="18" height="18" fill="#ffffff" />
-            <rect x="22" y="0" width="18" height="18" fill="#ffffff" opacity="0.5" />
-            <rect x="0" y="22" width="18" height="18" fill="#ffffff" opacity="0.5" />
-            <rect x="22" y="22" width="18" height="18" fill="#861442" />
-          </svg>
-          <h2 className="kot-hero-h2">About the POWER Score</h2>
-          <p className="kot-hero-txt">
-            A summarized view of your positioning, story, wow factor, expertise, and reputation — scored against 100 points.
-          </p>
-        </div>
-      </div>
 
-      {/* Input zone */}
-      <div className="kot-input-zone no-print">
-        <div style={{ maxWidth: 820, margin: "0 auto" }}>
+        {/* Hero */}
+        <div className="kot-hero no-print">
+          <div className="kot-hero-left">
+            <span className="kot-hero-power">POWER</span>
+            <span className="kot-hero-score">Score</span>
+          </div>
+          <div className="kot-hero-right">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
+              style={{ position: "absolute", top: "1.25rem", right: "1.25rem", opacity: 0.25 }}>
+              <rect x="0" y="0" width="18" height="18" fill="#ffffff" />
+              <rect x="22" y="0" width="18" height="18" fill="#ffffff" opacity="0.5" />
+              <rect x="0" y="22" width="18" height="18" fill="#ffffff" opacity="0.5" />
+              <rect x="22" y="22" width="18" height="18" fill="#861442" />
+            </svg>
+            <h2 className="kot-hero-h2">About the POWER Score</h2>
+            <p className="kot-hero-txt">
+              A summarized view of your positioning, story, wow factor, expertise, and reputation — scored against 100 points.
+            </p>
+          </div>
+        </div>
+
+        {/* Input zone */}
+        <div className="kot-input-zone no-print">
           <div className="kot-input-card">
             <p className="kot-input-label">Enter Your URL</p>
             <div className="kot-input-row">
@@ -422,239 +424,239 @@ return (
             </div>
           )}
         </div>
-      </div>
 
-      {/* Report */}
-      {playbook && (
-        <div className="kot-report-zone" style={{ animation: "fadeUp 0.5s ease both" }}>
-          <div className="kot-report-head kot-anim">
-            <h2 className="kot-report-name">{playbook.businessName}</h2>
-            <p className="kot-report-date">➜ {playbook.dateGenerated}</p>
-          </div>
-
-          <div className="card kot-anim" style={{ animationDelay: "0.05s", marginTop: 14 }}>
-            <p className="card-label">About</p>
-            <p className="card-body">{playbook.orgParagraph}</p>
-          </div>
-
-          <div className="card kot-anim" style={{ animationDelay: "0.1s" }}>
-            <p className="card-label">Your POWER Score</p>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 8 }}>
-              <span className="kot-score-num">{sc}</span>
-              <span className="kot-score-den">/100</span>
+        {/* Report */}
+        {playbook && (
+          <div className="kot-report-zone" style={{ animation: "fadeUp 0.5s ease both" }}>
+            <div className="kot-report-head kot-anim">
+              <h2 className="kot-report-name">{playbook.businessName}</h2>
+              <p className="kot-report-date">➜ {playbook.dateGenerated}</p>
             </div>
-            <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, color: "#6b6b66", letterSpacing: "0.06em", marginBottom: 16 }}>
-              {playbook.overallDescriptor}
-            </p>
-            <div style={{ background: "#edecea", borderRadius: 2, height: 3, overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${sc}%`, background: "#861442", borderRadius: 2, animation: "kot-bar 1.2s ease forwards" }} />
+
+            <div className="card kot-anim" style={{ animationDelay: "0.05s", marginTop: 14 }}>
+              <p className="card-label">About</p>
+              <p className="card-body">{playbook.orgParagraph}</p>
             </div>
-          </div>
 
-          <div className="narrative-box kot-anim" style={{ animationDelay: "0.15s" }}>
-            {playbook.scoreParagraph}
-          </div>
-
-          <div className="card kot-anim" style={{ animationDelay: "0.2s" }}>
-            <p className="card-label">P·O·W·E·R Breakdown</p>
-            {POWER_SECTIONS.map(({ key, letter, label, sub }) => {
-              const section = playbook[key];
-              if (!section) return null;
-              return (
-                <div key={key} className="power-row">
-                  <div className="power-meta">
-                    <span className="power-title"><span className="power-letter">{letter}</span>— {label}: {sub}</span>
-                    <span className="power-score-val">{section.score}/20</span>
-                  </div>
-                  <ScoreBar score={section.score} max={20} />
-                  <p className="power-content">{section.content}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          {playbook.brandPersonality && (
-            <div className="card kot-anim" style={{ animationDelay: "0.25s" }}>
-              <p className="card-label">Brand personality</p>
-              <p className="card-body">{playbook.brandPersonality}</p>
-            </div>
-          )}
-
-          {debugInfo && (
-            <div style={{ marginBottom: 14 }} className="no-print">
-              <button className="btn-ghost" onClick={() => setDebugOpen(o => !o)} style={{ fontSize: 12, padding: "5px 12px" }}>
-                {debugOpen ? "Hide" : "Show"} fetch info
-              </button>
-              {debugOpen && <pre className="kot-debug-pre">{debugInfo}</pre>}
-            </div>
-          )}
-
-          {!emailSubmitted && (
-            <>
-              {["Industry-leading competitors", "Trends to watch", "Three moves worth making"].map((label) => (
-                <div key={label} className="card kot-anim">
-                  <p className="card-label">{label}</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 4 }}>
-                    <span style={{ fontSize: 14, opacity: 0.3 }}>🔒</span>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#6b6b66", fontWeight: 300 }}>
-                      Submit your email below to unlock.
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-
-          {!emailSubmitted && (
-            <div className="card kot-anim no-print" style={{ animationDelay: "0.4s" }}>
-              <p className="card-label">Unlock more intel</p>
-              <p className="card-body" style={{ marginBottom: 20 }}>
-                See who's winning your category and what trends they're riding. Drop your email to unlock competitor intel, industry trends, and your three highest-leverage moves.
-              </p>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
-                <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="First name" className="kot-field" style={{ flex: 1, minWidth: 140 }} />
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleEmailSubmit()}
-                  placeholder="Email address" className="kot-field" style={{ flex: 2, minWidth: 200 }} />
+            <div className="card kot-anim" style={{ animationDelay: "0.1s" }}>
+              <p className="card-label">Your POWER Score</p>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 8 }}>
+                <span className="kot-score-num">{sc}</span>
+                <span className="kot-score-den">/100</span>
               </div>
-              <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, color: "#6b6b66", marginBottom: 16 }}>
-                By submitting, you agree to receive the Let's Make Some Noise newsletter.
+              <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, color: "#6b6b66", letterSpacing: "0.06em", marginBottom: 16 }}>
+                {playbook.overallDescriptor}
               </p>
-              {emailError && <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#c0705a", marginBottom: 10 }}>{emailError}</p>}
-              <button className="btn-primary" onClick={handleEmailSubmit}
-                disabled={emailSubmitting || !email.trim() || !firstName.trim()}>
-                {emailSubmitting ? "Sending..." : "Give me more details →"}
-              </button>
+              <div style={{ background: "#edecea", borderRadius: 2, height: 3, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${sc}%`, background: "#861442", borderRadius: 2, animation: "kot-bar 1.2s ease forwards" }} />
+              </div>
             </div>
-          )}
 
-          {emailSubmitted && (
-            <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#0F6E56", marginBottom: 14 }}>
-              ✓ Unlocking your expanded report below...
-            </p>
-          )}
-
-          {emailSubmitted && (intelLoading || intel || intelError) && (
-            <div className="card kot-anim">
-              <p className="card-label">Industry-leading competitors</p>
-              {intelLoading && <PulseLoader text="Searching for competitors and trends..." />}
-              {intelError && <p style={{ color: "#c0705a", fontSize: 13 }}>{intelError}</p>}
-              {intel?.competitors?.map((c, i) => (
-                <div key={i} className="intel-row">
-                  <p className="intel-name">{c.name}</p>
-                  <p className="intel-body">{c.whatTheyDo}</p>
-                  <p className="intel-body"><span className="intel-accent">Why they're winning</span>{c.whyTheyreWinning}</p>
-                </div>
-              ))}
+            <div className="narrative-box kot-anim" style={{ animationDelay: "0.15s" }}>
+              {playbook.scoreParagraph}
             </div>
-          )}
 
-          {emailSubmitted && (intelLoading || intel || intelError) && (
-            <div className="card kot-anim">
-              <p className="card-label">Trends to watch</p>
-              {intelLoading && <PulseLoader text="Pulling industry trends..." />}
-              {intel?.trends?.map((t, i) => (
-                <div key={i} className="intel-row">
-                  <p className="intel-name" style={{ color: "#861442" }}>{t.title}</p>
-                  <p className="intel-body">{t.insight}</p>
-                  <p className="intel-body"><span className="intel-accent">How this relates</span>{t.relevance}</p>
-                </div>
-              ))}
+            <div className="card kot-anim" style={{ animationDelay: "0.2s" }}>
+              <p className="card-label">P·O·W·E·R Breakdown</p>
+              {POWER_SECTIONS.map(({ key, letter, label, sub }) => {
+                const section = playbook[key];
+                if (!section) return null;
+                return (
+                  <div key={key} className="power-row">
+                    <div className="power-meta">
+                      <span className="power-title"><span className="power-letter">{letter}</span>— {label}: {sub}</span>
+                      <span className="power-score-val">{section.score}/20</span>
+                    </div>
+                    <ScoreBar score={section.score} max={20} />
+                    <p className="power-content">{section.content}</p>
+                  </div>
+                );
+              })}
             </div>
-          )}
 
-          {emailSubmitted && (revenueLoading || revenue || revenueError) && (
-            <div className="card kot-anim">
-              <p className="card-label">Three moves worth making</p>
-              {revenueLoading && <PulseLoader text="Identifying your highest-leverage moves..." />}
-              {revenueError && <p style={{ color: "#c0705a", fontSize: 13 }}>{revenueError}</p>}
-              {revenue?.moves?.map((m, i) => (
-                <div key={i} className="intel-row">
-                  <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "#861442", marginBottom: 6 }}>
-                    Move {i + 1}
-                  </p>
-                  <p className="intel-name">{m.title}</p>
-                  <p className="intel-body">{m.context}</p>
-                  <p className="intel-body"><span className="intel-accent">Next step</span>{m.action}</p>
-                </div>
-              ))}
-              {revenue?.closingLine && (
-                <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#861442", fontStyle: "italic", marginTop: 16 }}>
-                  {revenue.closingLine}
+            {playbook.brandPersonality && (
+              <div className="card kot-anim" style={{ animationDelay: "0.25s" }}>
+                <p className="card-label">Brand personality</p>
+                <p className="card-body">{playbook.brandPersonality}</p>
+              </div>
+            )}
+
+            {debugInfo && (
+              <div style={{ marginBottom: 14 }} className="no-print">
+                <button className="btn-ghost" onClick={() => setDebugOpen(o => !o)} style={{ fontSize: 12, padding: "5px 12px" }}>
+                  {debugOpen ? "Hide" : "Show"} fetch info
+                </button>
+                {debugOpen && <pre className="kot-debug-pre">{debugInfo}</pre>}
+              </div>
+            )}
+
+            {!emailSubmitted && (
+              <>
+                {["Industry-leading competitors", "Trends to watch", "Three moves worth making"].map((label) => (
+                  <div key={label} className="card kot-anim">
+                    <p className="card-label">{label}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 4 }}>
+                      <span style={{ fontSize: 14, opacity: 0.3 }}>🔒</span>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#6b6b66", fontWeight: 300 }}>
+                        Submit your email below to unlock.
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {!emailSubmitted && (
+              <div className="card kot-anim no-print" style={{ animationDelay: "0.4s" }}>
+                <p className="card-label">Unlock more intel</p>
+                <p className="card-body" style={{ marginBottom: 20 }}>
+                  See who's winning your category and what trends they're riding. Drop your email to unlock competitor intel, industry trends, and your three highest-leverage moves.
                 </p>
-              )}
-            </div>
-          )}
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+                  <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="First name" className="kot-field" style={{ flex: 1, minWidth: 140 }} />
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleEmailSubmit()}
+                    placeholder="Email address" className="kot-field" style={{ flex: 2, minWidth: 200 }} />
+                </div>
+                <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, color: "#6b6b66", marginBottom: 16 }}>
+                  By submitting, you agree to receive the Let's Make Some Noise newsletter.
+                </p>
+                {emailError && <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#c0705a", marginBottom: 10 }}>{emailError}</p>}
+                <button className="btn-primary" onClick={handleEmailSubmit}
+                  disabled={emailSubmitting || !email.trim() || !firstName.trim()}>
+                  {emailSubmitting ? "Sending..." : "Give me more details →"}
+                </button>
+              </div>
+            )}
 
-          {phase2Done && (
-            <div className="card kot-anim no-print">
-              <p className="card-label">Save this report</p>
-              <p className="card-body" style={{ marginBottom: 20 }}>
-                This report isn't saved. Print it before leaving — businesses can only run one report per day.
+            {emailSubmitted && (
+              <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#0F6E56", marginBottom: 14 }}>
+                ✓ Unlocking your expanded report below...
               </p>
-              <button className="btn-primary" onClick={() => window.print()}>Print / save report →</button>
-            </div>
-          )}
+            )}
 
-          <div className="card kot-anim">
-            <p className="card-label">Want to talk?</p>
-            <p className="card-body" style={{ marginBottom: 20 }}>
-              Want to dig into your results — or learn how your organization can deploy AI business intelligence tools?
-            </p>
-            <a href="https://monicapoling.com/vision" target="_blank" rel="noopener noreferrer"
-              className="btn-primary" style={{ display: "inline-block", textDecoration: "none" }}>
-              Book a Vision Call →
+            {emailSubmitted && (intelLoading || intel || intelError) && (
+              <div className="card kot-anim">
+                <p className="card-label">Industry-leading competitors</p>
+                {intelLoading && <PulseLoader text="Searching for competitors and trends..." />}
+                {intelError && <p style={{ color: "#c0705a", fontSize: 13 }}>{intelError}</p>}
+                {intel?.competitors?.map((c, i) => (
+                  <div key={i} className="intel-row">
+                    <p className="intel-name">{c.name}</p>
+                    <p className="intel-body">{c.whatTheyDo}</p>
+                    <p className="intel-body"><span className="intel-accent">Why they're winning</span>{c.whyTheyreWinning}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {emailSubmitted && (intelLoading || intel || intelError) && (
+              <div className="card kot-anim">
+                <p className="card-label">Trends to watch</p>
+                {intelLoading && <PulseLoader text="Pulling industry trends..." />}
+                {intel?.trends?.map((t, i) => (
+                  <div key={i} className="intel-row">
+                    <p className="intel-name" style={{ color: "#861442" }}>{t.title}</p>
+                    <p className="intel-body">{t.insight}</p>
+                    <p className="intel-body"><span className="intel-accent">How this relates</span>{t.relevance}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {emailSubmitted && (revenueLoading || revenue || revenueError) && (
+              <div className="card kot-anim">
+                <p className="card-label">Three moves worth making</p>
+                {revenueLoading && <PulseLoader text="Identifying your highest-leverage moves..." />}
+                {revenueError && <p style={{ color: "#c0705a", fontSize: 13 }}>{revenueError}</p>}
+                {revenue?.moves?.map((m, i) => (
+                  <div key={i} className="intel-row">
+                    <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "#861442", marginBottom: 6 }}>
+                      Move {i + 1}
+                    </p>
+                    <p className="intel-name">{m.title}</p>
+                    <p className="intel-body">{m.context}</p>
+                    <p className="intel-body"><span className="intel-accent">Next step</span>{m.action}</p>
+                  </div>
+                ))}
+                {revenue?.closingLine && (
+                  <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#861442", fontStyle: "italic", marginTop: 16 }}>
+                    {revenue.closingLine}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {phase2Done && (
+              <div className="card kot-anim no-print">
+                <p className="card-label">Save this report</p>
+                <p className="card-body" style={{ marginBottom: 20 }}>
+                  This report isn't saved. Print it before leaving — businesses can only run one report per day.
+                </p>
+                <button className="btn-primary" onClick={() => window.print()}>Print / save report →</button>
+              </div>
+            )}
+
+            <div className="card kot-anim">
+              <p className="card-label">Want to talk?</p>
+              <p className="card-body" style={{ marginBottom: 20 }}>
+                Want to dig into your results — or learn how your organization can deploy AI business intelligence tools?
+              </p>
+              <a href="https://monicapoling.com/vision" target="_blank" rel="noopener noreferrer"
+                className="btn-primary" style={{ display: "inline-block", textDecoration: "none" }}>
+                Book a Vision Call →
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="page-footer-rule" />
+        <footer className="page-footer">
+          <div>
+            <p className="footer-brand-name">Knowledge on Tap</p>
+            <a className="footer-brand-sub" href="https://monicapoling.com" target="_blank" rel="noopener noreferrer">
+              MonicaPoling.com
             </a>
           </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <div className="page-footer-rule" />
-      <footer className="page-footer">
-        <div>
-          <p className="footer-brand-name">Knowledge on Tap</p>
-          <a className="footer-brand-sub" href="https://monicapoling.com" target="_blank" rel="noopener noreferrer">
-            MonicaPoling.com
-          </a>
-        </div>
-
-        <div>
-          <p className="footer-col-label">Keep in Touch</p>
-          {footerSubmitted ? (
-            <p className="footer-submitted">✓ Got it — we'll be in touch.</p>
-          ) : (
-            <>
-              <div className="footer-fields">
-                <input className="footer-input" type="text" placeholder="First name"
-                  value={footerFirstName} onChange={(e) => setFooterFirstName(e.target.value)} />
-                <input className="footer-input" type="email" placeholder="Email address"
-                  value={footerEmail} onChange={(e) => setFooterEmail(e.target.value)} />
+          <div>
+            <p className="footer-col-label">Keep in Touch</p>
+            {footerSubmitted ? (
+              <p className="footer-submitted">✓ Got it — we'll be in touch.</p>
+            ) : (
+              <>
+                <div className="footer-fields">
+                  <input className="footer-input" type="text" placeholder="First name"
+                    value={footerFirstName} onChange={(e) => setFooterFirstName(e.target.value)} />
+                  <input className="footer-input" type="email" placeholder="Email address"
+                    value={footerEmail} onChange={(e) => setFooterEmail(e.target.value)} />
+                </div>
+                <button className="footer-submit-btn" onClick={handleFooterSubmit}
+                  disabled={!footerEmail.trim() || !footerFirstName.trim()}>
+                  Submit →
+                </button>
+              </>
+            )}
+          </div>
+          <div className="footer-checks">
+            <label className="check-row" onClick={() => setFooterSubscribe(v => !v)}>
+              <div className={`check-box${footerSubscribe ? " checked" : ""}`}>
+                {footerSubscribe && <Checkmark />}
               </div>
-              <button className="footer-submit-btn" onClick={handleFooterSubmit}
-                disabled={!footerEmail.trim() || !footerFirstName.trim()}>
-                Submit →
-              </button>
-            </>
-          )}
-        </div>
+              <span className="check-label">Subscribe me</span>
+            </label>
+            <label className="check-row" onClick={() => setFooterVision(v => !v)}>
+              <div className={`check-box${footerVision ? " checked" : ""}`}>
+                {footerVision && <Checkmark />}
+              </div>
+              <span className="check-label">Schedule a Vision Call</span>
+            </label>
+          </div>
+        </footer>
 
-        <div className="footer-checks">
-          <label className="check-row" onClick={() => setFooterSubscribe(v => !v)}>
-            <div className={`check-box${footerSubscribe ? " checked" : ""}`}>
-              {footerSubscribe && <Checkmark />}
-            </div>
-            <span className="check-label">Subscribe me</span>
-          </label>
-          <label className="check-row" onClick={() => setFooterVision(v => !v)}>
-            <div className={`check-box${footerVision ? " checked" : ""}`}>
-              {footerVision && <Checkmark />}
-            </div>
-            <span className="check-label">Schedule a Vision Call</span>
-          </label>
-        </div>
-      </footer>
+      </div>
+      {/* ── End constrained wrapper ── */}
 
     </div>
   );
