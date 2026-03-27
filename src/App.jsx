@@ -60,7 +60,7 @@ function normalizeUrl(input) {
 }
 
 async function callAPI(system, messages, useSearch = false) {
-  const body = { model: "claude-sonnet-4-20250514", max_tokens: 3000, system, messages };
+  const body = { model: "claude-sonnet-4-6", max_tokens: 3000, system, messages };
   if (useSearch) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
   const r = await fetch("/api/anthropic", {
     method: "POST",
