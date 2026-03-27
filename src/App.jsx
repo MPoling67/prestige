@@ -126,7 +126,7 @@ function PulseLoader({ text }) {
 function ScoreBar({ score, max }) {
   const pct = Math.round((score / max) * 100);
   return (
-    <div style={{ background: "#edecea", borderRadius: 2, height: 3, overflow: "hidden" }}>
+    <div style={{ background: "#2e2e2b", borderRadius: 2, height: 3, overflow: "hidden" }}>
       <div style={{ height: "100%", width: `${pct}%`, background: "#861442", borderRadius: 2, animation: "kot-bar 1.2s ease forwards" }} />
     </div>
   );
@@ -256,47 +256,46 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f4f3ef", color: "#1a1a18" }}>
+    <div style={{ minHeight: "100vh", background: "#1a1a18", color: "#f0ede8" }}>
 
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-          --bg: #f4f3ef; --surface: #ffffff; --surface2: #edecea;
-          --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.14);
-          --text: #1a1a18; --muted: #6b6b66;
+          --bg: #1a1a18; --surface: #242422; --surface2: #2e2e2b;
+          --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+          --text: #f0ede8; --muted: #8a8a84;
           --accent: #861442; --accent2: #be3650;
           --font-display: 'Fraunces', Georgia, serif;
           --font-body: 'Plus Jakarta Sans', sans-serif;
           --radius: 10px;
         }
-        body { font-family: var(--font-body); }
+        body { font-family: var(--font-body); background: #1a1a18; }
         @keyframes kot-pulse { 0%,100%{opacity:.25;transform:scale(1)} 50%{opacity:1;transform:scale(1.5)} }
         @keyframes kot-bar { from { width: 0 } }
         @keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
         .kot-anim { animation: fadeUp 0.5s ease both; }
 
-        .kot-tier1 { width:100%; background:#1a120e; padding:7px 1.5rem; display:flex; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); }
-        .kot-tier1-label { font-family:var(--font-body); font-size:12px; font-weight:400; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+        .kot-tier1 { width:100%; background:#111110; padding:7px 1.5rem; display:flex; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .kot-tier1-label { font-family:var(--font-body); font-size:12px; font-weight:400; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.35); }
 
-        .kot-hero { display:grid; grid-template-columns:1fr 1.4fr; width:100%; }
-        .kot-hero-left { background:#6b0f30; padding:2rem 1.75rem; display:flex; flex-direction:column; justify-content:center; }
-        .kot-hero-power { font-family:var(--font-display); font-weight:600; font-size:44px; line-height:1; color:#fff; letter-spacing:-0.02em; display:block; }
-        .kot-hero-score { font-family:var(--font-display); font-style:italic; font-weight:300; font-size:38px; line-height:1.1; color:rgba(255,255,255,0.72); display:block; }
-        .kot-hero-right { background:#1a120e; padding:1.75rem 2rem; display:flex; flex-direction:column; justify-content:center; gap:8px; position:relative; }
-        .kot-hero-h2 { font-family:var(--font-body); font-size:13px; font-weight:500; color:#fff; letter-spacing:0.04em; margin-bottom:4px; }
-        .kot-hero-txt { font-family:var(--font-body); font-size:13px; font-weight:300; color:rgba(255,255,255,0.85); line-height:1.65; }
+        .kot-hero { width:100%; background:#111110; padding:2.25rem 2rem 2rem; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:1.5rem; }
+        .kot-hero-svg { flex-shrink:0; }
+        .kot-hero-title { font-family:var(--font-display); font-weight:300; font-size:24px; line-height:1.3; color:#fff; margin-bottom:10px; letter-spacing:-0.01em; }
+        .kot-hero-title strong { font-weight:700; color:#fff; font-style:normal; }
+        .kot-hero-title em { font-style:italic; font-weight:300; color:#be3650; }
+        .kot-hero-txt { font-family:var(--font-body); font-size:14px; font-weight:300; color:rgba(255,255,255,0.6); line-height:1.7; }
 
-        .kot-input-zone { background:var(--bg); padding:clamp(28px,5vw,44px) clamp(16px,4vw,2rem) clamp(32px,5vw,48px); }
-        .kot-input-card { background:#ffffff; border:1.5px solid #861442; border-radius:var(--radius); padding:1.5rem; max-width:620px; }
-        .kot-input-label { font-family:var(--font-body); font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#861442; margin-bottom:12px; }
+        .kot-input-zone { background:#111110; padding:clamp(28px,5vw,44px) clamp(16px,4vw,2rem) clamp(32px,5vw,48px); border-top:1px solid rgba(255,255,255,0.06); }
+        .kot-input-card { background:#1a1a18; border:1.5px solid rgba(134,20,66,0.5); border-radius:var(--radius); padding:1.5rem; max-width:620px; }
+        .kot-input-label { font-family:var(--font-body); font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:12px; }
         .kot-input-row { display:flex; gap:10px; flex-wrap:wrap; }
 
         .btn-primary { background:#861442 !important; color:#ffffff !important; border:none; font-family:var(--font-body); font-size:13px; font-weight:500; padding:10px 22px; border-radius:var(--radius); cursor:pointer; letter-spacing:0.04em; transition:opacity 0.15s,transform 0.1s; white-space:nowrap; }
         .btn-primary:hover { opacity:0.88; }
         .btn-primary:active { transform:scale(0.97); }
-        .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+        .btn-primary:disabled { opacity:0.35; cursor:not-allowed; }
         .btn-ghost { background:transparent; color:var(--text); border:1px solid var(--border2); font-family:var(--font-body); font-size:13px; padding:10px 18px; border-radius:var(--radius); cursor:pointer; transition:color 0.15s,border-color 0.15s; }
-        .btn-ghost:hover { color:#861442; border-color:#861442; }
+        .btn-ghost:hover { color:#be3650; border-color:#be3650; }
 
         .kot-report-zone { background:var(--bg); padding:0 clamp(16px,4vw,2rem) 80px; }
         .kot-report-head { padding:36px 0 24px; border-bottom:1px solid var(--border); }
@@ -304,11 +303,11 @@ export default function App() {
         .kot-report-date { font-family:var(--font-body); font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:#be3650; }
 
         .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:clamp(18px,4vw,24px) clamp(18px,4vw,28px); margin-bottom:14px; }
-        .card-label { font-family:var(--font-body); font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:#861442; margin-bottom:14px; }
+        .card-label { font-family:var(--font-body); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#be3650; margin-bottom:14px; }
         .card-body { font-family:var(--font-body); font-size:14px; font-weight:300; line-height:1.8; color:var(--text); }
         .narrative-box { background:var(--surface); border:1px solid var(--border); border-left:3px solid #861442; border-radius:0 var(--radius) var(--radius) 0; padding:clamp(14px,3vw,20px) clamp(16px,3vw,24px); font-family:var(--font-body); font-size:14px; line-height:1.8; color:var(--text); font-weight:300; margin-bottom:14px; }
 
-        .kot-score-num { font-family:var(--font-display); font-weight:300; font-style:italic; font-size:clamp(72px,13vw,108px); line-height:1; letter-spacing:-0.04em; color:#861442; }
+        .kot-score-num { font-family:var(--font-display); font-weight:300; font-style:italic; font-size:clamp(72px,13vw,108px); line-height:1; letter-spacing:-0.04em; color:#be3650; }
         .kot-score-den { font-family:var(--font-display); font-size:22px; font-weight:300; color:var(--muted); padding-bottom:8px; }
 
         .power-row { padding:18px 0; border-bottom:1px solid var(--border); }
@@ -318,47 +317,61 @@ export default function App() {
         .power-title { font-family:var(--font-body); font-size:12px; font-weight:500; color:var(--text); }
         .power-letter { color:#be3650; margin-right:4px; }
         .power-score-val { font-family:var(--font-body); font-size:12px; font-weight:500; color:var(--muted); white-space:nowrap; }
-        .power-content { font-family:var(--font-body); font-size:13px; font-weight:300; line-height:1.75; color:var(--text); margin-top:10px; }
+        .power-content { font-family:var(--font-body); font-size:13px; font-weight:300; line-height:1.75; color:rgba(255,255,255,0.7); margin-top:10px; }
 
         .intel-row { padding:18px 0; border-bottom:1px solid var(--border); }
         .intel-row:first-child { padding-top:0; }
         .intel-row:last-child { border-bottom:none; padding-bottom:0; }
         .intel-name { font-family:var(--font-body); font-size:14px; font-weight:500; color:var(--text); margin-bottom:4px; }
-        .intel-body { font-family:var(--font-body); font-size:13px; font-weight:300; line-height:1.75; color:var(--text); margin-bottom:5px; }
-        .intel-accent { color:#861442; font-weight:500; margin-right:6px; }
+        .intel-body { font-family:var(--font-body); font-size:13px; font-weight:300; line-height:1.75; color:rgba(255,255,255,0.7); margin-bottom:5px; }
+        .intel-accent { color:#be3650; font-weight:500; margin-right:6px; }
 
-        .kot-field { width:100%; padding:10px 14px; background:#edecea !important; border:1px solid rgba(0,0,0,0.14); border-radius:var(--radius); color:#1a1a18 !important; font-family:var(--font-body); font-size:13px; outline:none; transition:border-color 0.2s; -webkit-text-fill-color:#1a1a18; }
+        .kot-field { width:100%; padding:10px 14px; background:#111110 !important; border:1px solid rgba(255,255,255,0.12); border-radius:var(--radius); color:#f0ede8 !important; font-family:var(--font-body); font-size:13px; outline:none; transition:border-color 0.2s; -webkit-text-fill-color:#f0ede8; }
         .kot-field:focus { border-color:#861442; }
-        .kot-field::placeholder { color:#6b6b66; opacity:1; }
+        .kot-field::placeholder { color:#5a5a56; opacity:1; }
 
         .kot-debug-pre { padding:14px; background:var(--surface2); border:1px solid var(--border); border-radius:6px; color:var(--muted); font-size:12px; white-space:pre-wrap; word-break:break-word; line-height:1.6; font-family:var(--font-body); margin-top:8px; }
 
-        .page-footer-rule { width:100%; height:2px; background:#861442; }
-        .page-footer { display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:2rem; padding:1.5rem 2rem; background:var(--bg); font-family:var(--font-body); }
-        .footer-brand-name { font-size:13px; font-weight:600; color:var(--text); margin-bottom:3px; }
-        .footer-brand-sub { font-size:12px; color:#be3650; text-decoration:none; display:block; }
-        .footer-col-label { font-size:12px; font-weight:600; color:var(--text); margin-bottom:10px; }
-        .footer-fields { display:flex; flex-direction:column; gap:7px; }
-        .footer-input { width:100%; padding:7px 10px; background:#ffffff !important; border:1px solid rgba(0,0,0,0.14); border-radius:6px; color:#1a1a18 !important; font-family:var(--font-body); font-size:12px; outline:none; -webkit-text-fill-color:#1a1a18; }
-        .footer-input::placeholder { color:#6b6b66; opacity:1; }
-        .footer-checks { display:flex; flex-direction:column; gap:10px; padding-top:22px; }
+        .page-footer-rule { width:100%; height:1.5px; background:rgba(134,20,66,0.5); }
+        .page-footer { background:#111110; padding:2rem 2rem 2.5rem; font-family:var(--font-body); }
+        .footer-top { display:flex; align-items:baseline; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+        .footer-brand-name { font-size:13px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.35); }
+        .footer-brand-tagline { font-size:11px; color:rgba(255,255,255,0.4); margin-top:1.5rem; line-height:1.7; }
+        .footer-brand-tagline strong { font-weight:700; color:rgba(255,255,255,0.7); }
+        .footer-brand-link { color:#be3650; text-decoration:none; }
+        .footer-brand-link:hover { text-decoration:underline; }
+        .footer-divider { width:100%; height:1px; background:rgba(255,255,255,0.06); margin-bottom:1.5rem; }
+        .footer-touch-title { font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.3; color:#fff; margin-bottom:1rem; letter-spacing:-0.01em; }
+        .footer-touch-title em { font-style:italic; font-weight:300; color:#be3650; }
+        .footer-form-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+        .footer-input { padding:9px 12px; background:#1a1a18 !important; border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#f0ede8 !important; font-family:var(--font-body); font-size:12px; outline:none; -webkit-text-fill-color:#f0ede8; transition:border-color 0.2s; }
+        .footer-input:focus { border-color:#861442; }
+        .footer-input::placeholder { color:#5a5a56; opacity:1; }
+        .footer-input-name { flex:0 0 160px; }
+        .footer-input-email { flex:1; min-width:180px; }
+        .footer-submit-btn { background:#861442 !important; color:#fff !important; border:none; font-family:var(--font-body); font-size:12px; font-weight:500; padding:9px 18px; border-radius:6px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+        .footer-submit-btn:disabled { opacity:0.35; cursor:not-allowed; }
+        .footer-checks { display:flex; gap:20px; margin-top:12px; flex-wrap:wrap; }
         .check-row { display:flex; align-items:center; gap:8px; cursor:pointer; }
-        .check-box { width:14px; height:14px; flex-shrink:0; border:1.5px solid #861442; border-radius:3px; background:#ffffff; display:flex; align-items:center; justify-content:center; }
+        .check-box { width:14px; height:14px; flex-shrink:0; border:1.5px solid #861442; border-radius:3px; background:transparent; display:flex; align-items:center; justify-content:center; }
         .check-box.checked { background:#861442; }
-        .check-label { font-size:12px; color:var(--text); }
-        .footer-submit-btn { margin-top:14px; background:#861442 !important; color:#fff !important; border:none; font-family:var(--font-body); font-size:12px; font-weight:500; padding:8px 16px; border-radius:6px; cursor:pointer; white-space:nowrap; }
-        .footer-submitted { font-size:12px; color:#0F6E56; margin-top:14px; }
+        .check-label { font-size:11px; color:rgba(255,255,255,0.5); }
+        .footer-submitted { font-size:12px; color:#4caf8a; margin-top:10px; }
 
-        @media print { .no-print { display:none !important; } }
+        @media print { .no-print { display:none !important; } body { background:#fff; color:#000; } }
         @media (max-width:600px) {
-          .kot-hero { grid-template-columns:1fr; }
-          .page-footer { grid-template-columns:1fr; gap:1.5rem; }
+
           .kot-input-row { flex-direction:column; }
         }
       `}</style>
 
       {/* ── Constrained wrapper — everything inside this ── */}
       <div style={{ maxWidth: 860, margin: "0 auto", overflow: "hidden" }}>
+
+        {/* SEO: visually hidden h1 — readable by crawlers, invisible to users */}
+        <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}>
+          POWER Score — Free AI Business Audit | Knowledge on Tap
+        </h1>
 
         {/* Tier 1 */}
         <div className="kot-tier1 no-print">
@@ -367,21 +380,16 @@ export default function App() {
 
         {/* Hero */}
         <div className="kot-hero no-print">
-          <div className="kot-hero-left">
-            <span className="kot-hero-power">POWER</span>
-            <span className="kot-hero-score">Score</span>
-          </div>
-          <div className="kot-hero-right">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
-              style={{ position: "absolute", top: "1.25rem", right: "1.25rem", opacity: 0.25 }}>
-              <rect x="0" y="0" width="18" height="18" fill="#ffffff" />
-              <rect x="22" y="0" width="18" height="18" fill="#ffffff" opacity="0.5" />
-              <rect x="0" y="22" width="18" height="18" fill="#ffffff" opacity="0.5" />
-              <rect x="22" y="22" width="18" height="18" fill="#861442" />
-            </svg>
-            <h2 className="kot-hero-h2">About the POWER Score</h2>
+          <svg width="54" height="54" viewBox="0 0 54 54" fill="none" className="kot-hero-svg" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0"  y="0"  width="24" height="24" fill="#ffffff" opacity="0.9" />
+            <rect x="30" y="0"  width="24" height="24" fill="#861442" opacity="0.85" />
+            <rect x="0"  y="30" width="24" height="24" fill="#ffffff" opacity="0.2" />
+            <rect x="30" y="30" width="24" height="24" fill="#ffffff" opacity="0.4" />
+          </svg>
+          <div>
+            <h1 className="kot-hero-title"><strong>POWER</strong> <em>Score</em></h1>
             <p className="kot-hero-txt">
-              A summarized view of your positioning, story, wow factor, expertise, and reputation — scored against 100 points.
+              Share your URL and get your POWER Score — a free business audit across five categories: Prestige, Ownership, Wow Factor, Expertise, and Reputation.
             </p>
           </div>
         </div>
@@ -398,8 +406,8 @@ export default function App() {
                 placeholder="yourbusiness.com"
                 style={{
                   flex: 1, minWidth: 200, padding: "10px 14px",
-                  background: "#edecea", border: "1px solid rgba(0,0,0,0.14)",
-                  borderRadius: 10, color: "#1a1a18", WebkitTextFillColor: "#1a1a18",
+                  background: "#111110", border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: 10, color: "#f0ede8", WebkitTextFillColor: "#f0ede8",
                   fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 13, fontWeight: 300,
                   outline: "none",
                 }}
@@ -433,31 +441,42 @@ export default function App() {
               <p className="kot-report-date">➜ {playbook.dateGenerated}</p>
             </div>
 
+            {/* 1 — POWER Score */}
             <div className="card kot-anim" style={{ animationDelay: "0.05s", marginTop: 14 }}>
-              <p className="card-label">About</p>
-              <p className="card-body">{playbook.orgParagraph}</p>
-            </div>
-
-            <div className="card kot-anim" style={{ animationDelay: "0.1s" }}>
               <p className="card-label">Your POWER Score</p>
               <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 8 }}>
                 <span className="kot-score-num">{sc}</span>
                 <span className="kot-score-den">/100</span>
               </div>
-              <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, color: "#6b6b66", letterSpacing: "0.06em", marginBottom: 16 }}>
+              <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, color: "#8a8a84", letterSpacing: "0.06em", marginBottom: 16 }}>
                 {playbook.overallDescriptor}
               </p>
-              <div style={{ background: "#edecea", borderRadius: 2, height: 3, overflow: "hidden" }}>
+              <div style={{ background: "#2e2e2b", borderRadius: 2, height: 3, overflow: "hidden" }}>
                 <div style={{ height: "100%", width: `${sc}%`, background: "#861442", borderRadius: 2, animation: "kot-bar 1.2s ease forwards" }} />
               </div>
             </div>
 
-            <div className="narrative-box kot-anim" style={{ animationDelay: "0.15s" }}>
-              {playbook.scoreParagraph}
+            {/* 2 — Consolidated: About + Brand Personality + About Your Score */}
+            <div className="card kot-anim" style={{ animationDelay: "0.1s" }}>
+              <p className="card-label">About {playbook.businessName}</p>
+              <p className="card-body">{playbook.orgParagraph}</p>
+
+              {playbook.brandPersonality && (
+                <>
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "20px 0" }} />
+                  <p className="card-label">Brand Personality</p>
+                  <p className="card-body">{playbook.brandPersonality}</p>
+                </>
+              )}
+
+              <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "20px 0" }} />
+              <p className="card-label">About Your Score</p>
+              <p className="card-body">{playbook.scoreParagraph}</p>
             </div>
 
-            <div className="card kot-anim" style={{ animationDelay: "0.2s" }}>
-              <p className="card-label">P·O·W·E·R Breakdown</p>
+            {/* 3 — P·O·W·E·R Score Breakdown */}
+            <div className="card kot-anim" style={{ animationDelay: "0.15s" }}>
+              <p className="card-label">P·O·W·E·R Score Breakdown</p>
               {POWER_SECTIONS.map(({ key, letter, label, sub }) => {
                 const section = playbook[key];
                 if (!section) return null;
@@ -473,13 +492,6 @@ export default function App() {
                 );
               })}
             </div>
-
-            {playbook.brandPersonality && (
-              <div className="card kot-anim" style={{ animationDelay: "0.25s" }}>
-                <p className="card-label">Brand personality</p>
-                <p className="card-body">{playbook.brandPersonality}</p>
-              </div>
-            )}
 
             {debugInfo && (
               <div style={{ marginBottom: 14 }} className="no-print">
@@ -497,7 +509,7 @@ export default function App() {
                     <p className="card-label">{label}</p>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 4 }}>
                       <span style={{ fontSize: 14, opacity: 0.3 }}>🔒</span>
-                      <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#6b6b66", fontWeight: 300 }}>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#8a8a84", fontWeight: 300 }}>
                         Submit your email below to unlock.
                       </span>
                     </div>
@@ -519,7 +531,7 @@ export default function App() {
                     onKeyDown={(e) => e.key === "Enter" && handleEmailSubmit()}
                     placeholder="Email address" className="kot-field" style={{ flex: 2, minWidth: 200 }} />
                 </div>
-                <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, color: "#6b6b66", marginBottom: 16 }}>
+                <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, color: "#8a8a84", marginBottom: 16 }}>
                   By submitting, you agree to receive the Let's Make Some Noise newsletter.
                 </p>
                 {emailError && <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#c0705a", marginBottom: 10 }}>{emailError}</p>}
@@ -531,7 +543,7 @@ export default function App() {
             )}
 
             {emailSubmitted && (
-              <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#0F6E56", marginBottom: 14 }}>
+              <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#4caf8a", marginBottom: 14 }}>
                 ✓ Unlocking your expanded report below...
               </p>
             )}
@@ -572,7 +584,7 @@ export default function App() {
                 {revenueError && <p style={{ color: "#c0705a", fontSize: 13 }}>{revenueError}</p>}
                 {revenue?.moves?.map((m, i) => (
                   <div key={i} className="intel-row">
-                    <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "#861442", marginBottom: 6 }}>
+                    <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "#be3650", marginBottom: 6 }}>
                       Move {i + 1}
                     </p>
                     <p className="intel-name">{m.title}</p>
@@ -581,7 +593,7 @@ export default function App() {
                   </div>
                 ))}
                 {revenue?.closingLine && (
-                  <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#861442", fontStyle: "italic", marginTop: 16 }}>
+                  <p style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#be3650", fontStyle: "italic", marginTop: 16 }}>
                     {revenue.closingLine}
                   </p>
                 )}
@@ -614,45 +626,35 @@ export default function App() {
         {/* Footer */}
         <div className="page-footer-rule" />
         <footer className="page-footer">
-          <div>
-            <p className="footer-brand-name">Knowledge on Tap</p>
-            <a className="footer-brand-sub" href="https://monicapoling.com" target="_blank" rel="noopener noreferrer">
-              MonicaPoling.com
-            </a>
-          </div>
-          <div>
-            <p className="footer-col-label">Keep in Touch</p>
-            {footerSubmitted ? (
-              <p className="footer-submitted">✓ Got it — we'll be in touch.</p>
-            ) : (
-              <>
-                <div className="footer-fields">
-                  <input className="footer-input" type="text" placeholder="First name"
-                    value={footerFirstName} onChange={(e) => setFooterFirstName(e.target.value)} />
-                  <input className="footer-input" type="email" placeholder="Email address"
-                    value={footerEmail} onChange={(e) => setFooterEmail(e.target.value)} />
-                </div>
-                <button className="footer-submit-btn" onClick={handleFooterSubmit}
-                  disabled={!footerEmail.trim() || !footerFirstName.trim()}>
-                  Submit →
-                </button>
-              </>
-            )}
-          </div>
-          <div className="footer-checks">
-            <label className="check-row" onClick={() => setFooterSubscribe(v => !v)}>
-              <div className={`check-box${footerSubscribe ? " checked" : ""}`}>
-                {footerSubscribe && <Checkmark />}
-              </div>
-              <span className="check-label">Subscribe me</span>
-            </label>
-            <label className="check-row" onClick={() => setFooterVision(v => !v)}>
-              <div className={`check-box${footerVision ? " checked" : ""}`}>
-                {footerVision && <Checkmark />}
-              </div>
-              <span className="check-label">Schedule a Vision Call</span>
-            </label>
-          </div>
+
+          {/* Keep in Touch — top */}
+          <p className="footer-touch-title">Keep in <em>Touch</em></p>
+
+          {footerSubmitted ? (
+            <p className="footer-submitted">✓ Got it — we'll be in touch.</p>
+          ) : (
+            <div className="footer-form-row">
+              <input className="footer-input footer-input-name" type="text" placeholder="First name"
+                value={footerFirstName} onChange={(e) => setFooterFirstName(e.target.value)} />
+              <input className="footer-input footer-input-email" type="email" placeholder="Email address"
+                value={footerEmail} onChange={(e) => setFooterEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleFooterSubmit()} />
+              <button className="footer-submit-btn" onClick={handleFooterSubmit}
+                disabled={!footerEmail.trim() || !footerFirstName.trim()}>
+                Submit →
+              </button>
+            </div>
+          )}
+
+          {/* Brand tagline — bottom */}
+          <p className="footer-brand-tagline">
+            <strong>The POWER Score</strong> is a mini-app from the Knowledge on Tap series.{" "}
+            Find more apps at{" "}
+            <a className="footer-brand-link" href="https://monicapoling.com/knowledge-on-tap" target="_blank" rel="noopener noreferrer">
+              monicapoling.com
+            </a>.
+          </p>
+
         </footer>
 
       </div>
