@@ -275,10 +275,10 @@ export default function App() {
         @keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
         .kot-anim { animation: fadeUp 0.5s ease both; }
 
-        .kot-tier1 { width:100%; background:#111110; padding:7px 1.5rem; display:flex; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .kot-tier1 { width:100%; background:#111110; padding:7px clamp(16px,4vw,2rem); display:flex; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); }
         .kot-tier1-label { font-family:var(--font-body); font-size:12px; font-weight:400; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.35); }
 
-        .kot-hero { width:100%; background:#111110; padding:2.25rem 2rem 2rem; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:1.5rem; }
+        .kot-hero { width:100%; background:#111110; padding:2.25rem clamp(16px,4vw,2rem) 2rem; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:1.5rem; }
         .kot-hero-svg { flex-shrink:0; }
         .kot-hero-title { font-family:var(--font-display); font-weight:300; font-size:24px; line-height:1.3; color:#fff; margin-bottom:10px; letter-spacing:-0.01em; }
         .kot-hero-title strong { font-weight:700; color:#fff; font-style:normal; }
@@ -333,29 +333,10 @@ export default function App() {
         .kot-debug-pre { padding:14px; background:var(--surface2); border:1px solid var(--border); border-radius:6px; color:var(--muted); font-size:12px; white-space:pre-wrap; word-break:break-word; line-height:1.6; font-family:var(--font-body); margin-top:8px; }
 
         .page-footer-rule { width:100%; height:1.5px; background:rgba(134,20,66,0.5); }
-        .page-footer { background:#111110; padding:2rem 2rem 2.5rem; font-family:var(--font-body); }
-        .footer-top { display:flex; align-items:baseline; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; }
-        .footer-brand-name { font-size:13px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.35); }
-        .footer-brand-tagline { font-size:11px; color:rgba(255,255,255,0.4); margin-top:1.5rem; line-height:1.7; }
-        .footer-brand-tagline strong { font-weight:700; color:rgba(255,255,255,0.7); }
-        .footer-brand-link { color:#be3650; text-decoration:none; }
-        .footer-brand-link:hover { text-decoration:underline; }
-        .footer-divider { width:100%; height:1px; background:rgba(255,255,255,0.06); margin-bottom:1.5rem; }
-        .footer-touch-title { font-family:var(--font-display); font-weight:300; font-size:22px; line-height:1.3; color:#fff; margin-bottom:1rem; letter-spacing:-0.01em; }
-        .footer-touch-title em { font-style:italic; font-weight:300; color:#be3650; }
-        .footer-form-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-        .footer-input { padding:9px 12px; background:#1a1a18 !important; border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#f0ede8 !important; font-family:var(--font-body); font-size:12px; outline:none; -webkit-text-fill-color:#f0ede8; transition:border-color 0.2s; }
-        .footer-input:focus { border-color:#861442; }
-        .footer-input::placeholder { color:#5a5a56; opacity:1; }
-        .footer-input-name { flex:0 0 160px; }
-        .footer-input-email { flex:1; min-width:180px; }
-        .footer-submit-btn { background:#861442 !important; color:#fff !important; border:none; font-family:var(--font-body); font-size:12px; font-weight:500; padding:9px 18px; border-radius:6px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
-        .footer-submit-btn:disabled { opacity:0.35; cursor:not-allowed; }
-        .footer-checks { display:flex; gap:20px; margin-top:12px; flex-wrap:wrap; }
-        .check-row { display:flex; align-items:center; gap:8px; cursor:pointer; }
-        .check-box { width:14px; height:14px; flex-shrink:0; border:1.5px solid #861442; border-radius:3px; background:transparent; display:flex; align-items:center; justify-content:center; }
-        .check-box.checked { background:#861442; }
-        .check-label { font-size:11px; color:rgba(255,255,255,0.5); }
+        .page-footer { background:#0d0d0c; padding:1.25rem clamp(16px,4vw,2rem); font-family:var(--font-body); }
+        .footer-copy { font-size:11px; color:rgba(255,255,255,0.2); letter-spacing:0.03em; }
+        .footer-copy-link { color:rgba(255,255,255,0.3); text-decoration:none; }
+        .footer-copy-link:hover { color:#be3650; }
         .footer-submitted { font-size:12px; color:#4caf8a; margin-top:10px; }
 
         @media print { .no-print { display:none !important; } body { background:#fff; color:#000; } }
@@ -502,28 +483,25 @@ export default function App() {
               </div>
             )}
 
-            {!emailSubmitted && (
-              <>
-                {["Industry-leading competitors", "Trends to watch", "Three moves worth making"].map((label) => (
-                  <div key={label} className="card kot-anim">
-                    <p className="card-label">{label}</p>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 4 }}>
-                      <span style={{ fontSize: 14, opacity: 0.3 }}>🔒</span>
-                      <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, color: "#8a8a84", fontWeight: 300 }}>
-                        Submit your email below to unlock.
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
+
 
             {!emailSubmitted && (
               <div className="card kot-anim no-print" style={{ animationDelay: "0.4s" }}>
-                <p className="card-label">Unlock more intel</p>
-                <p className="card-body" style={{ marginBottom: 20 }}>
-                  See who's winning your category and what trends they're riding. Drop your email to unlock competitor intel, industry trends, and your three highest-leverage moves.
+                <p className="card-label">Unlock More Intel</p>
+                <p className="card-body" style={{ marginBottom: 16 }}>
+                  Want to see your top competitors and industry trends to watch? Drop your email to unlock.
                 </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+                  {["Industry-leading competitors", "Trends to watch", "Three revenue moves worth making"].map((item) => (
+                    <div key={item} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="8" fill="#2a5c3f"/>
+                        <polyline points="4,8 7,11 12,5" stroke="#4caf8a" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 13, fontWeight: 300, color: "rgba(255,255,255,0.75)" }}>{item}</span>
+                    </div>
+                  ))}
+                </div>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
                   <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)}
                     placeholder="First name" className="kot-field" style={{ flex: 1, minWidth: 140 }} />
@@ -600,20 +578,20 @@ export default function App() {
               </div>
             )}
 
+            {/* Print — subtle, only when report is done */}
             {phase2Done && (
-              <div className="card kot-anim no-print">
-                <p className="card-label">Save this report</p>
-                <p className="card-body" style={{ marginBottom: 20 }}>
-                  This report isn't saved. Print it before leaving — businesses can only run one report per day.
-                </p>
-                <button className="btn-primary" onClick={() => window.print()}>Print / save report →</button>
+              <div className="no-print" style={{ textAlign: "right", marginBottom: 8 }}>
+                <button className="btn-ghost" style={{ fontSize: 12, padding: "7px 16px" }} onClick={() => window.print()}>
+                  Print / save this report →
+                </button>
               </div>
             )}
 
+            {/* Vision Call — the closer */}
             <div className="card kot-anim">
-              <p className="card-label">Want to talk?</p>
+              <p className="card-label">Ready to dig in?</p>
               <p className="card-body" style={{ marginBottom: 20 }}>
-                Want to dig into your results — or learn how your organization can deploy AI business intelligence tools?
+                Book a free Vision Call to walk through your results and map out what's next.
               </p>
               <a href="https://monicapoling.com/vision" target="_blank" rel="noopener noreferrer"
                 className="btn-primary" style={{ display: "inline-block", textDecoration: "none" }}>
@@ -626,35 +604,12 @@ export default function App() {
         {/* Footer */}
         <div className="page-footer-rule" />
         <footer className="page-footer">
-
-          {/* Keep in Touch — top */}
-          <p className="footer-touch-title">Keep in <em>Touch</em></p>
-
-          {footerSubmitted ? (
-            <p className="footer-submitted">✓ Got it — we'll be in touch.</p>
-          ) : (
-            <div className="footer-form-row">
-              <input className="footer-input footer-input-name" type="text" placeholder="First name"
-                value={footerFirstName} onChange={(e) => setFooterFirstName(e.target.value)} />
-              <input className="footer-input footer-input-email" type="email" placeholder="Email address"
-                value={footerEmail} onChange={(e) => setFooterEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleFooterSubmit()} />
-              <button className="footer-submit-btn" onClick={handleFooterSubmit}
-                disabled={!footerEmail.trim() || !footerFirstName.trim()}>
-                Submit →
-              </button>
-            </div>
-          )}
-
-          {/* Brand tagline — bottom */}
-          <p className="footer-brand-tagline">
-            <strong>The POWER Score</strong> is a mini-app from the Knowledge on Tap series.{" "}
-            Find more apps at{" "}
-            <a className="footer-brand-link" href="https://monicapoling.com/knowledge-on-tap" target="_blank" rel="noopener noreferrer">
-              monicapoling.com
-            </a>.
+          <p className="footer-copy">
+            © {new Date().getFullYear()} The POWER Score &nbsp;·&nbsp; Knowledge on Tap &nbsp;·&nbsp;{" "}
+            <a className="footer-copy-link" href="https://monicapoling.com/knowledge-on-tap" target="_blank" rel="noopener noreferrer">
+              monicapoling.com/knowledge-on-tap
+            </a>
           </p>
-
         </footer>
 
       </div>
