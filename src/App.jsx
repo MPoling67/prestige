@@ -1,5 +1,12 @@
 import { useState } from "react";
 
+// ── Google Fonts ──────────────────────────────────────────────────────────────
+// Dark zone: Fraunces + DM Mono
+// Light zone: Fraunces + Plus Jakarta Sans
+// Loaded via @import in the style block below
+
+// ── System Prompts ────────────────────────────────────────────────────────────
+
 const POWER_SYSTEM_PROMPT = `You are a strategic business analyst creating a POWER Score Report. Your tone is warm, direct, and expert — like a trusted advisor who has done their homework. Avoid jargon like "pipeline," "scale," "leverage," or "synergy." The report should feel written specifically for this organization — not AI generated.
 
 Use the web_search tool to fetch and read the content at the provided URL before generating any output. If the first fetch fails or returns no useful content, try these variations in order:
@@ -110,12 +117,21 @@ Rules:
 - No generic advice. If you can't tie it to the report, don't include it.
 - Tone: trusted advisor in the room, not a consultant's slide deck.`;
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
 function normalizeUrl(input) {
   let url = input.trim();
   if (!url) return url;
   if (!/^https?:\/\//i.test(url)) url = "https://" + url;
   url = url.replace(/\/+$/, "");
   return url;
+}
+
+function scoreColor(score, max) {
+  const pct = score / max;
+  if (pct >= 0.75) return "#0F6E56";
+  if (pct >= 0.55) return "#a07800";
+  return "#861442";
 }
 
 async function generatePlaybook(rawUrl) {
@@ -146,7 +162,7 @@ Then generate the full POWER Score JSON.`
   if (!response.ok) throw new Error(`API error ${response.status}: ${await response.text()}`);
   const data = await response.json();
   const textBlock = data.content?.find(b => b.type === "text");
-  if (!textBlock) throw new Error(`No text block in response.`);
+  if (!textBlock) throw new Error("No text block in response.");
   const clean = textBlock.text.replace(/```json|```/g, "").replace(/<[^>]*cite[^>]*>/gi, "").trim();
   try { return JSON.parse(clean); }
   catch (e) { throw new Error(`JSON parse failed: ${e.message}\n\nRaw (first 500):\n${clean.substring(0, 500)}`); }
@@ -199,72 +215,62 @@ async function generateRevenue(playbookData) {
   catch (e) { throw new Error(`Revenue JSON parse failed: ${e.message}`); }
 }
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
 const POWER_SECTIONS = [
-  { key: "prestige",    letter: "P", label: "Prestige",   subtitle: "Do You Own Your Category?" },
-  { key: "origin",      letter: "O", label: "Origin",     subtitle: "What's Your Origin Story?" },
-  { key: "wow",         letter: "W", label: "Wow",        subtitle: "What Makes You Unforgettable?" },
-  { key: "expertise",   letter: "E", label: "Expertise",  subtitle: "Do You Demonstrate Clear Expertise?" },
-  { key: "reputation",  letter: "R", label: "Reputation", subtitle: "Are You the Voice of Your Industry?" },
+  { key: "prestige",   letter: "P", label: "Prestige",   subtitle: "Do You Own Your Category?" },
+  { key: "origin",     letter: "O", label: "Ownership",  subtitle: "What's Your Origin Story?" },
+  { key: "wow",        letter: "W", label: "Wow Factor", subtitle: "What Makes You Unforgettable?" },
+  { key: "expertise",  letter: "E", label: "Expertise",  subtitle: "Do You Demonstrate Clear Expertise?" },
+  { key: "reputation", letter: "R", label: "Reputation", subtitle: "Are You the Voice of Your Industry?" },
 ];
 
-const BOX = {
-  background: "#1e1510",
-  border: "1px solid #3d2e24",
-  borderRadius: "6px",
-  padding: "32px 36px",
-  marginBottom: "16px"
-};
+const LOAD_STEPS = [
+  "Pulling up your site...",
+  "Wow! This is great stuff...",
+  "Evaluating your P·O·W·E·R...",
+  "Personality, deconstructed...",
+  "Love what you're doing...",
+  "Calculating your POWER Score...",
+];
 
-const SUPERTITLE = {
-  fontSize: "11px",
-  letterSpacing: "0.2em",
-  textTransform: "uppercase",
-  color: "#f2e4ca",
-  marginBottom: "8px",
-  fontWeight: "600"
-};
-
-const BODY = {
-  fontSize: "15px",
-  color: "#f2e4ca",
-  lineHeight: "1.75",
-  fontWeight: "300"
-};
-
-const BTN = {
-  display: "inline-block",
-  padding: "12px 24px",
-  background: "#861442",
-  color: "#f9ebea",
-  border: "none",
-  borderRadius: "4px",
-  fontSize: "13px",
-  fontFamily: "'Poppins', sans-serif",
-  letterSpacing: "0.1em",
-  textTransform: "uppercase",
-  fontWeight: "600",
-  cursor: "pointer",
-  whiteSpace: "nowrap",
-  textDecoration: "none"
-};
+// ── Sub-components ────────────────────────────────────────────────────────────
 
 function PulseLoader({ text }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 0" }}>
-      <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#861442", animation: "pulse 1.2s ease-in-out infinite" }} />
-      <p style={{ color: "#9a8070", fontSize: "14px", fontStyle: "italic", margin: 0, fontWeight: "300" }}>{text}</p>
+    <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "6px 0" }}>
+      <div style={{
+        width: "6px", height: "6px", borderRadius: "50%", background: "#861442",
+        animation: "kot-pulse 1.2s ease-in-out infinite", flexShrink: 0
+      }} />
+      <p style={{ color: "#888580", fontSize: "13px", fontStyle: "italic", margin: 0, fontWeight: 300, fontFamily: "'DM Mono', monospace" }}>{text}</p>
     </div>
   );
 }
 
+function ScoreBar({ score, max }) {
+  const col = scoreColor(score, max);
+  const pct = Math.round((score / max) * 100);
+  return (
+    <div style={{ background: "var(--surface2)", borderRadius: "2px", height: "4px", overflow: "hidden" }}>
+      <div style={{
+        height: "100%", width: `${pct}%`, background: col, borderRadius: "2px",
+        animation: "kot-scoreBar 1.2s ease forwards"
+      }} />
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────────────────────────────
+
 export default function App() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState("");
   const [playbook, setPlaybook] = useState(null);
   const [error, setError] = useState(null);
   const [debugInfo, setDebugInfo] = useState(null);
   const [debugOpen, setDebugOpen] = useState(false);
-  const [progress, setProgress] = useState("");
 
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
@@ -280,6 +286,8 @@ export default function App() {
   const [revenueLoading, setRevenueLoading] = useState(false);
   const [revenueError, setRevenueError] = useState(null);
 
+  const phase2Done = intel && revenue;
+
   const handleGenerate = async () => {
     if (!url.trim()) return;
     setLoading(true);
@@ -290,32 +298,18 @@ export default function App() {
     setRevenue(null);
     setEmailSubmitted(false);
 
-    const steps = [
-      "Pulling up your site...",
-      "Wow! This is great stuff ...",
-      "Evaluating your P-O-W-E-R ...",
-      "Personality, deconstructed ...",
-      "Love what you're doing ...",
-      "Calculating your POWER Score ..."
-    ];
     let i = 0;
-    setProgress(steps[0]);
-    const interval = setInterval(() => { i = (i + 1) % steps.length; setProgress(steps[i]); }, 2200);
+    setProgress(LOAD_STEPS[0]);
+    const interval = setInterval(() => { i = (i + 1) % LOAD_STEPS.length; setProgress(LOAD_STEPS[i]); }, 2200);
 
     try {
       const result = await generatePlaybook(url);
       setPlaybook(result);
+      // Fire-and-forget GA event
       fetch("https://script.google.com/macros/s/AKfycbxtCPP6q6wqCUYlSEtNdyQxFF_22K94lvgP4MJytXYX-kWqpCYkZnXG7tYV5fSZThYj/exec", {
         method: "POST", mode: "no-cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          event: "report_run",
-          timestamp: new Date().toISOString(),
-          url: url.trim(),
-          score: result.overallScore || "",
-          browser: navigator.userAgent,
-          subscribe: "false"
-        })
+        body: JSON.stringify({ event: "report_run", timestamp: new Date().toISOString(), url: url.trim(), score: result.overallScore || "", browser: navigator.userAgent, subscribe: "false" })
       }).catch(() => {});
       if (!result.fetchSuccess || result.fetchNote) {
         setDebugInfo(
@@ -325,7 +319,7 @@ export default function App() {
         );
       }
     } catch (e) {
-      setError("Ooops look like AI gremlins are up to no good. Please sumit your URL and try again.");
+      setError("Oops — looks like AI gremlins are up to no good. Submit your URL and try again.");
       setDebugInfo(e.message);
     } finally {
       clearInterval(interval);
@@ -342,17 +336,7 @@ export default function App() {
       await fetch("https://script.google.com/macros/s/AKfycbxtCPP6q6wqCUYlSEtNdyQxFF_22K94lvgP4MJytXYX-kWqpCYkZnXG7tYV5fSZThYj/exec", {
         method: "POST", mode: "no-cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          event: "email_submit",
-          timestamp: new Date().toISOString(),
-          url: url.trim(),
-          score: playbook?.overallScore || "",
-          browser: navigator.userAgent,
-          firstName: firstName.trim(),
-          email: email.trim(),
-          website: url.trim(),
-          subscribe: "true"
-        })
+        body: JSON.stringify({ event: "email_submit", timestamp: new Date().toISOString(), url: url.trim(), score: playbook?.overallScore || "", browser: navigator.userAgent, firstName: firstName.trim(), email: email.trim(), website: url.trim(), subscribe: "true" })
       });
       setEmailSubmitted(true);
       runPhase2();
@@ -366,314 +350,369 @@ export default function App() {
   const runPhase2 = async () => {
     setIntelLoading(true);
     setRevenueLoading(true);
-
-    // Run both calls in parallel
     const [intelResult, revenueResult] = await Promise.allSettled([
       generateIntel(playbook),
       generateRevenue(playbook)
     ]);
-
     if (intelResult.status === "fulfilled") setIntel(intelResult.value);
     else setIntelError("Could not load competitor and trend data. Try refreshing.");
     setIntelLoading(false);
-
     if (revenueResult.status === "fulfilled") setRevenue(revenueResult.value);
     else setRevenueError("Could not load revenue mapping. Try refreshing.");
     setRevenueLoading(false);
   };
 
-  const overallColor = playbook
-    ? playbook.overallScore >= 75 ? "#06472a"
-    : playbook.overallScore >= 55 ? "#861442"
-    : "#8a5a3a"
-    : "#861442";
-
-  const phase2Done = intel && revenue;
+  const sc = playbook?.overallScore || 0;
+  const overallColor = scoreColor(sc, 100);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#2b211b", fontFamily: "'Poppins', 'Georgia', sans-serif", color: "#f2e4ca", padding: "0" }}>
+    <div style={{ minHeight: "100vh", background: "#2b211b", fontFamily: "'DM Mono', monospace", color: "#f2e4ca" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
-        @keyframes scoreBar { from { width: 0%; } }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.4); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        input::placeholder { color: #5a4a3a; }
-        * { box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300;1,9..144,600&family=DM+Mono:wght@300;400;500&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        @keyframes kot-scoreBar { from { width: 0%; } }
+        @keyframes kot-pulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.4); } }
+        @keyframes kot-fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+        .kot-report-zone { background: #f4f3ef; color: #1a1a18; }
+        .kot-report-zone { --bg: #f4f3ef; --surface: #ffffff; --surface2: #edecea; --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.14); --text: #1a1a18; --muted: #6b6b66; --accent: #861442; --accent2: #be3650; --green: #0F6E56; --amber: #a07800; --radius: 10px; }
+
+        .kot-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: clamp(20px,4vw,32px) clamp(20px,4vw,36px); margin-bottom: 16px; }
+        .kot-card-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-family: 'DM Mono', monospace; font-weight: 500; color: var(--accent); margin-bottom: 16px; }
+        .kot-card-body { font-size: 14px; line-height: 1.8; color: var(--text); font-weight: 300; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        .kot-narrative { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: clamp(16px,3vw,24px) clamp(16px,3vw,28px); font-size: 14px; line-height: 1.8; color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 300; margin-bottom: 16px; }
+
+        .kot-field { width: 100%; padding: 11px 14px; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); color: var(--text); font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif; outline: none; transition: border-color 0.2s; }
+        .kot-field:focus { border-color: #861442; }
+        .kot-field::placeholder { color: var(--muted); }
+
+        .kot-btn { background: #861442; color: #ffffff; border: none; border-radius: 10px; font-size: 13px; font-weight: 500; padding: 12px 22px; cursor: pointer; letter-spacing: 0.04em; transition: opacity 0.15s, transform 0.1s; white-space: nowrap; font-family: 'DM Mono', monospace; }
+        .kot-btn:hover { opacity: 0.88; }
+        .kot-btn:active { transform: scale(0.97); }
+        .kot-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .kot-btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border2); font-size: 13px; padding: 10px 18px; border-radius: var(--radius); cursor: pointer; transition: color 0.15s, border-color 0.15s; font-family: 'DM Mono', monospace; }
+        .kot-btn-ghost:hover { color: #861442; border-color: #861442; }
+
+        .kot-power-row { padding: 18px 0; border-bottom: 1px solid var(--border); }
+        .kot-power-row:first-child { padding-top: 0; }
+        .kot-power-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .kot-power-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .kot-power-title { font-size: 12px; font-weight: 500; color: var(--text); font-family: 'DM Mono', monospace; }
+        .kot-power-letter { color: var(--accent); margin-right: 4px; }
+        .kot-power-score { font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 500; color: var(--muted); white-space: nowrap; }
+        .kot-power-content { font-size: 13px; line-height: 1.75; color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 300; margin-top: 10px; }
+
+        .kot-intel-item { padding: 18px 0; border-bottom: 1px solid var(--border); }
+        .kot-intel-item:first-child { padding-top: 0; }
+        .kot-intel-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .kot-move-item { padding: 20px 0; border-bottom: 1px solid var(--border); }
+        .kot-move-item:first-child { padding-top: 0; }
+        .kot-move-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .kot-anim { animation: kot-fadeUp 0.5s ease both; }
+
+        .kot-debug-pre { padding: 14px; background: #edecea; border: 1px solid rgba(0,0,0,0.08); border-radius: 6px; color: #6b6b66; font-size: 11px; white-space: pre-wrap; word-break: break-word; line-height: 1.6; font-family: 'DM Mono', monospace; margin-top: 8px; }
+
         @media print {
           .no-print { display: none !important; }
-          body { background: #2b211b !important; }
-          .print-warning { display: none !important; }
+        }
+
+        @media (max-width: 480px) {
+          .kot-input-row { flex-direction: column; }
+          .kot-input-row .kot-btn { width: 100%; text-align: center; }
+          .kot-email-row { flex-direction: column; }
+          .kot-tool-inner-wrap { flex-direction: column; align-items: flex-start; }
         }
       `}</style>
 
-      {/* Header */}
-      <div className="no-print" style={{ borderBottom: "1px solid #3d2e24", padding: "32px 40px 28px", display: "flex", alignItems: "baseline", gap: "12px" }}>
-        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#861442", fontWeight: "700" }}>The POWER Score</span>
-        <span style={{ color: "#f2e4ca", fontSize: "10px", fontWeight: "700" }}>✦</span>
-        <span style={{ fontSize: "12px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#f2e4ca", fontWeight: "700" }}>Knowledge on Tap</span>
+      {/* ── DARK ZONE: KoT Banner + Hero ── */}
+
+      {/* Tier 1: Brand shelf */}
+      <div style={{ display: "flex", overflow: "hidden" }}>
+        <div style={{ width: "7px", background: "#861442", flexShrink: 0 }} />
+        <div style={{ flex: 1, background: "#1a120e", padding: "7px 1.5rem", display: "flex", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <p style={{ fontSize: "11px", fontWeight: 400, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Mono', monospace", margin: 0 }}>Knowledge on Tap</p>
+        </div>
       </div>
 
-      {/* Hero / Input */}
-      <div className="no-print" style={{ padding: "80px 40px 64px", maxWidth: "780px", margin: "0 auto" }}>
-        <p style={{ fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#f2e4ca", marginBottom: "48px", fontWeight: "600" }}>Market Intelligence</p>
-        <h1 style={{ fontSize: "clamp(32px, 5vw, 54px)", fontWeight: "700", lineHeight: "1.05", margin: "0 0 24px", color: "#861442", letterSpacing: "-0.03em", fontFamily: "'Poppins', sans-serif" }}>
-          POWER Score
+      {/* Hero */}
+      <div className="no-print" style={{ padding: "48px clamp(20px,5vw,48px) 64px", maxWidth: "760px", margin: "0 auto" }}>
+
+        <h1 style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 300, fontSize: "42px", lineHeight: 1.1, letterSpacing: "-0.02em", color: "#f2e4ca", marginBottom: "12px" }}>
+          POWER <em style={{ fontStyle: "italic", color: "#be3650" }}>Score</em>
         </h1>
-        <p style={{ fontSize: "17px", lineHeight: "1.75", color: "#f2e4ca", maxWidth: "560px", margin: "0 0 52px", fontWeight: "300" }}>
-          Great businesses often get overlooked because they're trained to do excellent work, but they don't know how to showcase their work strategically. Learn what's working and what isn't.
-          <br /><br />
-          Unlock your POWER Score now.
+
+        <p style={{ fontSize: "14px", color: "#f2e4ca", fontFamily: "'DM Mono', monospace", fontWeight: 300, lineHeight: 1.6, marginBottom: "28px" }}>
+          Share your URL and get your POWER Score — a free business audit across five categories:
         </p>
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", maxWidth: "680px" }}>
+
+        {/* Category pills */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "36px" }}>
+          {POWER_SECTIONS.map(({ letter, label }) => (
+            <div key={letter} style={{ fontSize: "11px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: "#f2e4ca", padding: "5px 12px", border: "1px solid rgba(255,255,255,0.18)", borderRadius: "20px" }}>
+              <span style={{ color: "#be3650", marginRight: "4px" }}>{letter}</span>{label}
+            </div>
+          ))}
+        </div>
+
+        {/* URL input */}
+        <p style={{ fontSize: "11px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.12em", textTransform: "uppercase", color: "#f2e4ca", marginBottom: "10px" }}>Enter Your URL</p>
+        <div className="kot-input-row" style={{ display: "flex", gap: "10px", flexWrap: "wrap", maxWidth: "620px" }}>
           <input
-            type="url" value={url} onChange={e => setUrl(e.target.value)}
+            type="url" value={url}
+            onChange={e => setUrl(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !loading && handleGenerate()}
-            placeholder="Enter your URL"
-            style={{ flex: "1", minWidth: "200px", padding: "15px 20px", background: "#1a120e", border: "1px solid #3d2e24", borderRadius: "4px", color: "#f2e4ca", fontSize: "15px", fontFamily: "'Poppins', sans-serif", outline: "none", fontWeight: "300" }}
+            placeholder="yourbusiness.com"
+            style={{ flex: 1, minWidth: "200px", padding: "13px 16px", background: "#1a120e", border: "1px solid rgba(255,255,255,0.14)", borderRadius: "10px", color: "#f2e4ca", fontSize: "13px", fontFamily: "'DM Mono', monospace", fontWeight: 300, outline: "none" }}
             onFocus={e => e.target.style.borderColor = "#861442"}
-            onBlur={e => e.target.style.borderColor = "#3d2e24"}
+            onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.14)"}
           />
-          <button onClick={handleGenerate} disabled={loading || !url.trim()}
-            style={{ ...BTN, padding: "15px 28px", cursor: loading ? "not-allowed" : "pointer" }}>
+          <button className="kot-btn" onClick={handleGenerate} disabled={loading || !url.trim()}>
             {loading ? "Analyzing..." : "Get My Score →"}
           </button>
         </div>
+
+        {/* Loading */}
         {loading && (
-          <div style={{ marginTop: "32px", display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#861442", animation: "pulse 1.2s ease-in-out infinite" }} />
-            <p style={{ color: "#9a8070", fontSize: "15px", fontStyle: "italic", margin: 0, fontWeight: "300" }}>{progress}</p>
+          <div style={{ marginTop: "24px" }}>
+            <PulseLoader text={progress} />
           </div>
         )}
+
+        {/* Error */}
         {error && (
           <div style={{ marginTop: "20px" }}>
-            <p style={{ color: "#c0705a", fontSize: "15px", margin: "0 0 8px" }}>{error}</p>
+            <p style={{ color: "#c0705a", fontSize: "13px", margin: "0 0 8px", fontFamily: "'DM Mono', monospace" }}>{error}</p>
             {debugInfo && (
-              <div>
-                <button onClick={() => setDebugOpen(o => !o)} style={{ background: "none", border: "1px solid #3d2e24", borderRadius: "3px", color: "#6a5040", fontSize: "12px", fontFamily: "'Poppins', sans-serif", letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: "6px 12px" }}>
+              <>
+                <button onClick={() => setDebugOpen(o => !o)} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "#888580", fontSize: "11px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em", cursor: "pointer", padding: "5px 12px" }}>
                   {debugOpen ? "Hide" : "Show"} Debug Info
                 </button>
-                {debugOpen && <pre style={{ marginTop: "10px", padding: "16px", background: "#1e1510", border: "1px solid #3d2e24", borderRadius: "4px", color: "#9a8070", fontSize: "12px", whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: "1.6" }}>{debugInfo}</pre>}
-              </div>
+                {debugOpen && <pre style={{ marginTop: "10px", padding: "14px", background: "#1e1510", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "6px", color: "#888580", fontSize: "11px", whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: "1.6", fontFamily: "'DM Mono', monospace" }}>{debugInfo}</pre>}
+              </>
             )}
           </div>
         )}
       </div>
 
-      {/* Report Output */}
+      {/* ── LIGHT ZONE: Report Output ── */}
       {playbook && (
-        <div style={{ maxWidth: "780px", margin: "0 auto", padding: "0 40px 80px", animation: "fadeIn 0.6s ease" }}>
-          <div style={{ borderTop: "1px solid #3d2e24", marginBottom: "56px" }} />
+        <div className="kot-report-zone" style={{ animation: "kot-fadeUp 0.6s ease" }}>
+          <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 clamp(16px,5vw,48px) 80px" }}>
 
-          {/* Business name + date */}
-          <div style={{ marginBottom: "40px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: "600", color: "#f2e4ca", margin: "0 0 8px", letterSpacing: "-0.01em" }}>{playbook.businessName}</h2>
-            <p style={{ fontSize: "12px", color: "#861442", letterSpacing: "0.1em", margin: 0, textTransform: "uppercase", fontWeight: "500" }}>➜ {playbook.dateGenerated}</p>
-          </div>
-
-          {/* Box 1: Business Overv iew */}
-          <div style={BOX}>
-            <p style={SUPERTITLE}>📌 About {playbook.businessName}</p>
-            <p style={{ ...BODY, margin: "0 0 20px" }}>{playbook.orgParagraph}</p>
-          </div>
-          
-          {/* Box 2:  Total Score */}
-          <div style={BOX}>
-            <p style={SUPERTITLE}>⚡ Your POWER Score</p>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "14px" }}>
-              <span style={{ fontSize: "72px", fontWeight: "300", lineHeight: "1", color: overallColor, letterSpacing: "-0.04em", fontFamily: "'Georgia', serif" }}>{playbook.overallScore}</span>
-              <span style={{ fontSize: "22px", color: "#f2e4ca", paddingBottom: "6px", fontWeight: "600" }}>/100</span>
+            <div style={{ paddingTop: "48px", marginBottom: "48px", borderTop: "1px solid rgba(0,0,0,0.08)" }}>
+              <h2 style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 300, fontSize: "clamp(24px,4vw,36px)", letterSpacing: "-0.02em", color: "#1a1a18", marginBottom: "6px" }}>{playbook.businessName}</h2>
+              <p style={{ fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: "#861442", fontFamily: "'DM Mono', monospace", margin: 0 }}>➜ {playbook.dateGenerated}</p>
             </div>
-            <div style={{ background: "#f2e4ca", borderRadius: "2px", height: "3px", marginBottom: "20px", overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${playbook.overallScore}%`, background: "#861442", borderRadius: "2px", animation: "scoreBar 1.2s ease forwards" }} />
+
+            {/* About */}
+            <div className="kot-card kot-anim" style={{ animationDelay: "0.05s" }}>
+              <p className="kot-card-label">About</p>
+              <p className="kot-card-body">{playbook.orgParagraph}</p>
             </div>
-          </div>
 
-          {/* Box 3: Score Overview */}
-          <div style={BOX}>
-            <p style={SUPERTITLE}>⭐ About Your Score</p>
-            <p style={{ ...BODY, margin: 0 }}>{playbook.scoreParagraph}</p>
-          </div>
+            {/* Score */}
+            <div className="kot-card kot-anim" style={{ animationDelay: "0.1s" }}>
+              <p className="kot-card-label">Your POWER Score</p>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "8px" }}>
+                <span style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 300, fontSize: "clamp(64px,12vw,96px)", lineHeight: 1, letterSpacing: "-0.04em", color: overallColor }}>{sc}</span>
+                <span style={{ fontSize: "22px", color: "#6b6b66", fontWeight: 300, paddingBottom: "8px" }}>/100</span>
+              </div>
+              <p style={{ fontSize: "12px", fontFamily: "'DM Mono', monospace", color: "#6b6b66", letterSpacing: "0.06em", marginBottom: "16px" }}>{playbook.overallDescriptor}</p>
+              <div style={{ background: "#edecea", borderRadius: "2px", height: "4px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${sc}%`, background: overallColor, borderRadius: "2px", animation: "kot-scoreBar 1.2s ease forwards" }} />
+              </div>
+            </div>
 
-          {/* Box 4: Power  Breakdown */}
-          <div style={BOX}>
-            <p style={{ ...SUPERTITLE, marginBottom: "24px" }}>📊 Power Score Breakdown</p>
-            {POWER_SECTIONS.map(({ key, letter, label, subtitle }, idx) => {
-              const section = playbook[key];
-              if (!section) return null;
-              return (
-                <div key={key} style={{ marginBottom: idx < POWER_SECTIONS.length - 1 ? "24px" : 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <p style={{ fontSize: "15px", color: "#f2e4ca", margin: 0, fontWeight: "600" }}>
-                      <span style={{ color: "#861442", marginRight: "6px" }}>{letter}</span>— {label}: {subtitle}
-                    </p>
-                    <span style={{ fontSize: "13px", color: "#f2e4ca", fontWeight: "600", whiteSpace: "nowrap", marginLeft: "16px" }}>{section.score}/20</span>
+            {/* Score paragraph */}
+            <div className="kot-narrative kot-anim" style={{ animationDelay: "0.15s" }}>{playbook.scoreParagraph}</div>
+
+            {/* POWER Breakdown */}
+            <div className="kot-card kot-anim" style={{ animationDelay: "0.2s" }}>
+              <p className="kot-card-label">P·O·W·E·R Breakdown</p>
+              {POWER_SECTIONS.map(({ key, letter, label, subtitle }, idx) => {
+                const section = playbook[key];
+                if (!section) return null;
+                return (
+                  <div key={key} className="kot-power-row">
+                    <div className="kot-power-meta">
+                      <span className="kot-power-title"><span className="kot-power-letter">{letter}</span> — {label}: {subtitle}</span>
+                      <span className="kot-power-score">{section.score}/20</span>
+                    </div>
+                    <ScoreBar score={section.score} max={20} />
+                    <p className="kot-power-content">{section.content}</p>
                   </div>
-                  <div style={{ background: "#f2e4ca", borderRadius: "2px", height: "3px", marginBottom: "8px", overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: `${Math.round((section.score / 20) * 100)}%`, background: "#861442", borderRadius: "2px", transition: "width 1.2s ease" }} />
-                  </div>
-                  <p style={{ ...BODY, margin: 0 }}>{section.content}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Box 3: Brand Personality */}
-          {playbook.brandPersonality && (
-            <div style={BOX}>
-              <p style={{ ...SUPERTITLE, marginBottom: "16px" }}>✨ Bonus: Brand Personality</p>
-              <p style={{ ...BODY, margin: 0 }}>{playbook.brandPersonality}</p>
+                );
+              })}
             </div>
-          )}
 
-          {/* Debug */}
-          {debugInfo && (
-            <div style={{ marginBottom: "16px" }} className="no-print">
-              <button onClick={() => setDebugOpen(o => !o)} style={{ background: "none", border: "1px solid #3d2e24", borderRadius: "3px", color: "#6a5040", fontSize: "12px", fontFamily: "'Poppins', sans-serif", letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: "6px 12px" }}>
-                {debugOpen ? "Hide" : "Show"} Fetch Info
-              </button>
-              {debugOpen && <pre style={{ marginTop: "10px", padding: "16px", background: "#1e1510", border: "1px solid #3d2e24", borderRadius: "4px", color: "#9a8070", fontSize: "12px", whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: "1.6" }}>{debugInfo}</pre>}
-            </div>
-          )}
-
-          {/* Phase 2 Teasers — shown before email submit */}
-          {!emailSubmitted && (
-            <>
-              <div style={BOX}>
-                <p style={SUPERTITLE}>🏆 Industry-Leading Competitors</p>
-                <p style={{ ...BODY, margin: 0 }}>Submit your email (below) to unlock information about your industry-leading competitors.</p>
-              </div>
-              <div style={BOX}>
-                <p style={SUPERTITLE}>📈 Trends to Watch</p>
-                <p style={{ ...BODY, margin: 0 }}>Submit your email (below) to get industry trends worth watching.</p>
-              </div>
-              <div style={BOX}>
-                <p style={SUPERTITLE}>💡 Three Moves Worth Making</p>
-                <p style={{ ...BODY, margin: 0 }}>Submit your email (below) to get three moves to help you level up your Prestige Score.</p>
-              </div>
-            </>
-          )}
-
-          {/* Email Capture */}
-          <div style={BOX} className="no-print">
-            <p style={SUPERTITLE}>📩 Get More Intel</p>
-            <p style={{ ...BODY, marginBottom: "24px" }}>
-               See who’s winning your category and what trends they’re riding. Drop your email to unlock your competitor and trend intel.
-            </p>
-            {emailSubmitted ? (
-              <p style={{ fontSize: "15px", color: "#4a9a6a", fontWeight: "500" }}>✓ Unlocking your expanded report below...</p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                  <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="First name"
-                    style={{ flex: "1", minWidth: "140px", padding: "12px 16px", background: "#2b211b", border: "1px solid #3d2e24", borderRadius: "4px", color: "#f2e4ca", fontSize: "14px", fontFamily: "'Poppins', sans-serif", outline: "none", fontWeight: "300" }}
-                    onFocus={e => e.target.style.borderColor = "#861442"} onBlur={e => e.target.style.borderColor = "#3d2e24"} />
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && handleEmailSubmit()} placeholder="Email address"
-                    style={{ flex: "2", minWidth: "200px", padding: "12px 16px", background: "#2b211b", border: "1px solid #3d2e24", borderRadius: "4px", color: "#f2e4ca", fontSize: "14px", fontFamily: "'Poppins', sans-serif", outline: "none", fontWeight: "300" }}
-                    onFocus={e => e.target.style.borderColor = "#861442"} onBlur={e => e.target.style.borderColor = "#3d2e24"} />
-                </div>
-                <p style={{ fontSize: "12px", color: "#5a4a3a", margin: 0, fontWeight: "300" }}>By submitting, you agree to receive the Let's Make Some Noise newsletter.</p>
-                {emailError && <p style={{ fontSize: "13px", color: "#c0705a", margin: 0 }}>{emailError}</p>}
-                <button onClick={handleEmailSubmit} disabled={emailSubmitting || !email.trim() || !firstName.trim()}
-                  style={{ ...BTN, alignSelf: "flex-start", cursor: emailSubmitting || !email.trim() || !firstName.trim() ? "not-allowed" : "pointer" }}>
-                  {emailSubmitting ? "Sending..." : "Give Me More Details →"}
-                </button>
+            {/* Brand Personality */}
+            {playbook.brandPersonality && (
+              <div className="kot-card kot-anim" style={{ animationDelay: "0.25s" }}>
+                <p className="kot-card-label">Brand Personality</p>
+                <p className="kot-card-body">{playbook.brandPersonality}</p>
               </div>
             )}
-          </div>
 
-          {/* Phase 2: Industry-Leading Competitors */}
-          {emailSubmitted && (intelLoading || intel || intelError) && (
-            <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
-              <p style={SUPERTITLE}>🏆 Industry-Leading Competitors</p>
-              {intelLoading && <PulseLoader text="Searching for competitors and trends..." />}
-              {intelError && <p style={{ color: "#c0705a", fontSize: "14px" }}>{intelError}</p>}
-              {intel && (
-                <>
-                  {intel.competitors?.map((c, i) => (
-                    <div key={i} style={{ marginBottom: i < intel.competitors.length - 1 ? "20px" : 0, paddingBottom: i < intel.competitors.length - 1 ? "20px" : 0, borderBottom: i < intel.competitors.length - 1 ? "1px solid #3d2e24" : "none" }}>
-                      <p style={{ fontSize: "15px", fontWeight: "600", color: "#f2e4ca", margin: "0 0 4px" }}>{c.name}</p>
-                      <p style={{ ...BODY, margin: "0 0 8px" }}>{c.whatTheyDo}</p>
-                      <p style={{ ...BODY, margin: "0 0 4px" }}><span style={{ color: "#861442", fontWeight: "600" }}>Why They're Winning</span> · {c.whyTheyreWinning}</p>
+            {/* Debug */}
+            {debugInfo && (
+              <div style={{ marginBottom: "16px" }} className="no-print">
+                <button className="kot-btn-ghost" onClick={() => setDebugOpen(o => !o)} style={{ fontSize: "11px", padding: "5px 12px" }}>
+                  {debugOpen ? "Hide" : "Show"} Fetch Info
+                </button>
+                {debugOpen && <pre className="kot-debug-pre">{debugInfo}</pre>}
+              </div>
+            )}
+
+            {/* Phase 2 teasers */}
+            {!emailSubmitted && (
+              <>
+                {[
+                  { label: "Industry-Leading Competitors", teaser: "Submit your email below to unlock." },
+                  { label: "Trends to Watch", teaser: "Submit your email below to unlock." },
+                  { label: "Three Moves Worth Making", teaser: "Submit your email below to unlock." },
+                ].map(({ label, teaser }) => (
+                  <div key={label} className="kot-card kot-anim">
+                    <p className="kot-card-label">{label}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingTop: "4px" }}>
+                      <span style={{ fontSize: "16px", opacity: 0.35 }}>🔒</span>
+                      <span style={{ fontSize: "13px", color: "#6b6b66", fontFamily: "'DM Mono', monospace", fontWeight: 300 }}>{teaser}</span>
                     </div>
-                  ))}
-                </>
-              )}
-            </div>
-          )}
+                  </div>
+                ))}
+              </>
+            )}
 
-          {/* Phase 2: Trends to Watch */}
-          {emailSubmitted && (intelLoading || intel || intelError) && (
-            <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
-              <p style={SUPERTITLE}>📈 Trends to Watch</p>
-              {intelLoading && <PulseLoader text="Searching for trends..." />}
-              {intelError && <p style={{ color: "#c0705a", fontSize: "14px" }}>{intelError}</p>}
-              {intel && intel.trends?.map((t, i) => (
-                <div key={i} style={{ marginBottom: i < intel.trends.length - 1 ? "20px" : 0 }}>
-                  <p style={{ fontSize: "15px", fontWeight: "600", color: "#861442", margin: "0 0 4px" }}>{t.title}</p>
-                  <p style={{ ...BODY, margin: "0 0 8px" }}>{t.insight}</p>
-                  <p style={{ ...BODY, margin: 0 }}><span style={{ color: "#861442", fontWeight: "600" }}>How This Relates</span> · {t.relevance}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Phase 2: Three Moves Worth Making */}
-          {emailSubmitted && (revenueLoading || revenue || revenueError) && (
-            <div style={{ ...BOX, animation: "fadeIn 0.6s ease" }}>
-              <p style={SUPERTITLE}>💡 Three Moves Worth Making</p>
-              {revenueLoading && <PulseLoader text="Identifying your highest-leverage moves..." />}
-              {revenueError && <p style={{ color: "#c0705a", fontSize: "14px" }}>{revenueError}</p>}
-              {revenue && (
-                <>
-                  {revenue.moves?.map((m, i) => (
-                    <div key={i} style={{ marginBottom: i < revenue.moves.length - 1 ? "24px" : "20px", paddingBottom: i < revenue.moves.length - 1 ? "24px" : 0, borderBottom: i < revenue.moves.length - 1 ? "1px solid #3d2e24" : "none" }}>
-                      <p style={{ fontSize: "15px", fontWeight: "600", color: "#861442", margin: "0 0 6px" }}>Move {i + 1}: {m.title}</p>
-                      <p style={{ ...BODY, margin: "0 0 8px" }}>{m.context}</p>
-                      <p style={{ ...BODY, margin: 0 }}><span style={{ color: "#861442", fontWeight: "600" }}>Next Step</span> · {m.action}</p>
-                    </div>
-                  ))}
-                  {revenue.closingLine && (
-                    <p style={{ fontSize: "14px", color: "#861442", margin: "4px 0 0", fontWeight: "500", fontStyle: "italic" }}>{revenue.closingLine}</p>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-
-          {/* CTA */}
-          <div style={BOX}>
-            <p style={SUPERTITLE}>✦ Want to Talk</p>
-            <p style={{ ...BODY, marginBottom: "24px" }}>
-              Want to talk about your results? Or learn how your org can develop AI business intelligence tools.
-            </p>
-            <a href="https://monicapoling.com/vision" target="_blank" rel="noopener noreferrer" style={BTN}>
-              Book a Vision Call →
-            </a>
-          </div>
-
-          {/* Print Button */}
-          {phase2Done && (
-            <div className="no-print" style={{ ...BOX, marginBottom: "32px" }}>
-              <p style={SUPERTITLE}>🖨️ Print This Report!</p>
-              <p style={{ ...BODY, marginBottom: "24px" }}>
-                This report is not saved. Print it now, before leaving this page, or lose it forever more. (Businesses can only run one report per day.)
+            {/* Email Capture */}
+            <div className="kot-card kot-anim no-print" style={{ animationDelay: "0.45s" }}>
+              <p className="kot-card-label">Unlock More Intel</p>
+              <p className="kot-card-body" style={{ marginBottom: "20px" }}>
+                See who's winning your category and what trends they're riding. Drop your email to unlock your competitor and trend intel.
               </p>
-              <button onClick={() => window.print()} style={BTN}>
-                Print / Save Report →
-              </button>
+              {emailSubmitted ? (
+                <p style={{ fontSize: "14px", color: "#0F6E56", fontFamily: "'DM Mono', monospace", fontWeight: 400 }}>✓ Unlocking your expanded report below...</p>
+              ) : (
+                <>
+                  <div className="kot-email-row" style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px" }}>
+                    <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="First name" className="kot-field" style={{ flex: 1, minWidth: "140px" }} />
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === "Enter" && handleEmailSubmit()} placeholder="Email address" className="kot-field" style={{ flex: 2, minWidth: "200px" }} />
+                  </div>
+                  <p style={{ fontSize: "11px", color: "#6b6b66", fontFamily: "'DM Mono', monospace", marginBottom: "16px" }}>By submitting, you agree to receive the Let's Make Some Noise newsletter.</p>
+                  {emailError && <p style={{ fontSize: "13px", color: "#c0705a", marginBottom: "10px", fontFamily: "'DM Mono', monospace" }}>{emailError}</p>}
+                  <button className="kot-btn" onClick={handleEmailSubmit} disabled={emailSubmitting || !email.trim() || !firstName.trim()}>
+                    {emailSubmitting ? "Sending..." : "Give Me More Details →"}
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Phase 2 content */}
+            {emailSubmitted && (
+              <>
+                {/* Competitors */}
+                {(intelLoading || intel || intelError) && (
+                  <div className="kot-card kot-anim">
+                    <p className="kot-card-label">Industry-Leading Competitors</p>
+                    {intelLoading && <PulseLoader text="Searching for competitors and trends..." />}
+                    {intelError && <p style={{ color: "#c0705a", fontSize: "13px", fontFamily: "'DM Mono', monospace" }}>{intelError}</p>}
+                    {intel?.competitors?.map((c, i, arr) => (
+                      <div key={i} className="kot-intel-item">
+                        <p style={{ fontSize: "14px", fontWeight: 500, color: "#1a1a18", marginBottom: "4px", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{c.name}</p>
+                        <p style={{ fontSize: "13px", lineHeight: 1.75, color: "#1a1a18", fontWeight: 300, marginBottom: "6px", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{c.whatTheyDo}</p>
+                        <p style={{ fontSize: "13px", lineHeight: 1.75, fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 300, color: "#1a1a18" }}>
+                          <strong style={{ color: "#861442", fontWeight: 500 }}>Why They're Winning</strong> · {c.whyTheyreWinning}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Trends */}
+                {(intelLoading || intel || intelError) && (
+                  <div className="kot-card kot-anim">
+                    <p className="kot-card-label">Trends to Watch</p>
+                    {intelLoading && <PulseLoader text="Pulling industry trends..." />}
+                    {intel?.trends?.map((t, i) => (
+                      <div key={i} className="kot-intel-item">
+                        <p style={{ fontSize: "14px", fontWeight: 500, color: "#861442", marginBottom: "4px", fontFamily: "'DM Mono', monospace" }}>{t.title}</p>
+                        <p style={{ fontSize: "13px", lineHeight: 1.75, color: "#1a1a18", fontWeight: 300, marginBottom: "6px", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{t.insight}</p>
+                        <p style={{ fontSize: "13px", lineHeight: 1.75, fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 300, color: "#1a1a18" }}>
+                          <strong style={{ color: "#861442", fontWeight: 500 }}>How This Relates</strong> · {t.relevance}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Revenue moves */}
+                {(revenueLoading || revenue || revenueError) && (
+                  <div className="kot-card kot-anim">
+                    <p className="kot-card-label">Three Moves Worth Making</p>
+                    {revenueLoading && <PulseLoader text="Identifying your highest-leverage moves..." />}
+                    {revenueError && <p style={{ color: "#c0705a", fontSize: "13px", fontFamily: "'DM Mono', monospace" }}>{revenueError}</p>}
+                    {revenue?.moves?.map((m, i) => (
+                      <div key={i} className="kot-move-item">
+                        <p style={{ fontSize: "11px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.12em", textTransform: "uppercase", color: "#861442", marginBottom: "6px" }}>Move {i + 1}</p>
+                        <p style={{ fontSize: "14px", fontWeight: 500, color: "#1a1a18", marginBottom: "8px", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{m.title}</p>
+                        <p style={{ fontSize: "13px", lineHeight: 1.75, color: "#1a1a18", fontWeight: 300, marginBottom: "6px", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{m.context}</p>
+                        <p style={{ fontSize: "13px", lineHeight: 1.75, fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 300, color: "#1a1a18" }}>
+                          <strong style={{ color: "#861442", fontWeight: 500 }}>Next Step</strong> · {m.action}
+                        </p>
+                      </div>
+                    ))}
+                    {revenue?.closingLine && (
+                      <p style={{ fontSize: "13px", color: "#be3650", fontStyle: "italic", marginTop: "16px", fontFamily: "'DM Mono', monospace" }}>{revenue.closingLine}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Print */}
+                {phase2Done && (
+                  <div className="kot-card kot-anim no-print">
+                    <p className="kot-card-label">Save This Report</p>
+                    <p className="kot-card-body" style={{ marginBottom: "20px" }}>This report isn't saved. Print it before leaving — or lose it. Businesses can only run one report per day.</p>
+                    <button className="kot-btn" onClick={() => window.print()}>Print / Save Report →</button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* CTA */}
+            <div className="kot-card kot-anim">
+              <p className="kot-card-label">Want to Talk?</p>
+              <p className="kot-card-body" style={{ marginBottom: "20px" }}>
+                Want to dig into your results — or learn how your organization can deploy AI business intelligence tools?
+              </p>
+              <a href="https://monicapoling.com/vision" target="_blank" rel="noopener noreferrer" className="kot-btn" style={{ display: "inline-block", textDecoration: "none" }}>
+                Book a Vision Call →
+              </a>
+            </div>
+
+          </div>
+
+          {/* Tier 3: Newsletter — only after value delivered */}
+          {emailSubmitted && (
+            <div style={{ display: "flex", overflow: "hidden" }}>
+              <div style={{ width: "7px", background: "#861442", opacity: 0.2, flexShrink: 0 }} />
+              <div style={{ flex: 1, background: "#1a120e", border: "1px solid rgba(255,255,255,0.08)", borderTop: "none", padding: "10px 1.5rem", display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap", flexShrink: 0, fontFamily: "'DM Mono', monospace", letterSpacing: "0.06em", margin: 0 }}>Let's Make Some Noise</p>
+                <input type="email" placeholder="your@email.com" style={{ flex: 1, minWidth: "160px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "5px", color: "#fff", fontSize: "12px", padding: "6px 12px", outline: "none", fontFamily: "'DM Mono', monospace" }} />
+                <button style={{ background: "#861442", color: "#fff", border: "none", borderRadius: "5px", fontSize: "11px", fontWeight: 500, letterSpacing: "0.06em", padding: "7px 16px", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, fontFamily: "'DM Mono', monospace" }}>Subscribe →</button>
+              </div>
             </div>
           )}
 
           {/* Footer */}
-          <div style={{ marginTop: "48px", paddingTop: "28px", borderTop: "1px solid #2a1e18" }}>
-            <p style={{ fontSize: "13px", color: "#9a8070", margin: 0, fontWeight: "400" }}>
-              Monica Poling · Knowledge on Tap ·{" "}
-              <a href="https://monicapoling.com" target="_blank" rel="noopener noreferrer" style={{ color: "#9a8070", textDecoration: "underline", textUnderlineOffset: "3px" }}>
-                monicapoling.com
-              </a>
-            </p>
-          </div>
+          <footer style={{ padding: "1.2rem clamp(16px,5vw,48px)", borderTop: "1px solid rgba(0,0,0,0.08)", fontSize: "12px", color: "#6b6b66", lineHeight: 1.8, fontFamily: "'DM Mono', monospace" }}>
+            <p>The POWER Score is an AI-powered tool from Knowledge on Tap</p>
+            <p>Knowledge on Tap | <a href="https://monicapoling.com" target="_blank" rel="noopener noreferrer" style={{ color: "#be3650", textDecoration: "none" }}>Monica Poling</a></p>
+          </footer>
+
         </div>
       )}
     </div>
